@@ -94,8 +94,42 @@ public class Joueur {
      *  - construire un port
      */
     void jouerTour() {
+        //choix 1 : piocher des cartes transports
+        //afficher cartes pioches
+        //JE FAIS DES TESTS POUR COMPRENDRE LES FONCTIONS
+        List<String> optionsVilles = new ArrayList<>();
+        for (Ville ville : jeu.getPortsLibres()) {
+            optionsVilles.add(ville.nom());
+        }
+        List<Bouton> boutons = Arrays.asList(
+                new Bouton("Piocher une carte transport"),
+                new Bouton("échanger des pions wagons ou bateaux"),
+                new Bouton("Prendre de nouvelles destinations"),
+                new Bouton("Capturer une route"),
+                new Bouton("Construire un port"));
+
+        String choix = choisir(
+                "Choisissez l'action à exécuter durant votre tour :",
+                optionsVilles,
+                boutons,
+                true);
+
+        if (choix.equals("")) {
+            log(String.format("%s passe son tour", toLog()));
+        } else {
+            log(String.format("%s a choisi %s", toLog(), choix));
+            if(choix.equals("Piocher une carte transport")){
+                //action pour piocher 2 cartes
+                //problem car la méthode n'est pas static
+                //PilesCartesTransport.piocher();
+
+            }
+        }
+
+        //NE PAS SUPPRIMER
         // IMPORTANT : Le corps de cette fonction est à réécrire entièrement
         // Un exemple très simple est donné pour illustrer l'utilisation de certaines méthodes
+        /*
         List<String> optionsVilles = new ArrayList<>();
         for (Ville ville : jeu.getPortsLibres()) {
             optionsVilles.add(ville.nom());
@@ -115,6 +149,7 @@ public class Joueur {
         } else {
             log(String.format("%s a choisi %s", toLog(), choix));
         }
+        */
     }
 
     /**
