@@ -122,6 +122,8 @@ public class Joueur {
                 //action pour piocher 2 cartes
                 //problem car la méthode n'est pas static
                 //PilesCartesTransport.piocher();
+                CarteTransport listeCarte = new CarteTransport;
+
 
             }
         }
@@ -151,6 +153,7 @@ public class Joueur {
         }
         */
     }
+
 
     /**
      * Attend une entrée de la part du joueur (au clavier ou sur la websocket) et
