@@ -98,6 +98,8 @@ public class Joueur {
         //afficher cartes pioches
         //JE FAIS DES TESTS POUR COMPRENDRE LES FONCTIONS
         int nbCarteTransportPioche = 0;
+        String choix;
+        boolean peutPasser = false;
 
 
         List<Bouton> boutons = Arrays.asList(
@@ -107,31 +109,33 @@ public class Joueur {
                 new Bouton("Capturer une route"),
                 new Bouton("Construire un port"));
 
-        String choix = choisir(
+        do{
+            choix = choisir(
                 "Choisissez l'action à exécuter durant votre tour :",
                 null,
                 boutons,
-                true);
+                peutPasser);
 
-        if (choix.equals("")) {
-            log(String.format("%s passe son tour", toLog()));
-        } 
-        else {
-            log(String.format("%s a choisi %s", toLog(), choix));
+            if (choix.equals("")) {
+                log(String.format("%s passe son tour", toLog()));
+            } 
+            else {
+                log(String.format("%s a choisi %s", toLog(), choix));
 
-            if(choix.equals("Piocher une carte transport")){
-                nbCarteTransportPioche = this.piocherCarteTransport(nbCarteTransportPioche);
-            }
-            if (choix.equals("échanger des pions wagons ou bateaux")) {
-                //TODO
-            }
-            if(choix.equals("Prendre de nouvelles destinations")){
-                log(String.format("%s passé", toLog()));
-                for(int i=0; i<4; i++){
-                    this.destinations.add(this.jeu.piocheDestination());
+                if(choix.equals("Piocher une carte transport")){
+                    nbCarteTransportPioche = this.piocherCarteTransport(nbCarteTransportPioche);
+                }
+                if (choix.equals("échanger des pions wagons ou bateaux")) {
+                    //TODO
+                }
+                if(choix.equals("Prendre de nouvelles destinations")){
+                    piocherCarteDestination();
+                    peutPasser = true;
+                    //TODO supprimer le bouton de destination (Je m'en occupe)
                 }
             }
-        }
+
+        }while(!choix.equals(""));
 
         //NE PAS SUPPRIMER
         // IMPORTANT : Le corps de cette fonction est à réécrire entièrement
@@ -159,9 +163,15 @@ public class Joueur {
         */
     }
 
-
+    /**
+     * Gère la pioche de carte Transport par le joueur
+     * 
+     * @param nbCartePioche nombre de carte transport déja pioché
+     * 
+     * @return la carte qui a été piochée (ou null si aucune carte disponible)
+     */
     private int piocherCarteTransport(int nbCartePioche){
-        
+        //TODO cette métode ne prend pas en charge les joker
         List<Bouton> boutons = Arrays.asList(
                 new Bouton("piocher une carte wagon", "pioche une carte wagon"),
                 new Bouton("piocher une carte bateau", "pioche une carte bateau"),
@@ -170,9 +180,9 @@ public class Joueur {
         String choix;
 
         do{
-            choix = choisir("Choisissez dans quel pile vous souhaitez piocher", null, boutons, true);
+            choix = choisir("Choisissez dans quel pile vous souhaitez piocher", null, boutons, false);
             
-            if(nbCartePioche<2){
+            if(nbCartePioche<2 && !choix.equals("Retour")){
                 log(String.format("%s %s", toLog(), choix));
                 if(choix.equals("pioche une carte wagon")){
                     this.cartesTransport.add(this.jeu.piocherCarteWagon());
@@ -182,13 +192,56 @@ public class Joueur {
                 }
                 nbCartePioche++;
             }
-            else if(nbCartePioche==2 && !choix.equals("") && !choix.equals("Retour")){
+            else if(nbCartePioche==2 && !choix.equals("Retour")){
                 log(String.format("Impossible de piocher %s a déjà pioché 2 cartes", toLog()));
             }
 
-        }while(!choix.equals("") && !choix.equals("Retour"));
+        }while(!choix.equals("Retour"));
 
         return nbCartePioche;
+    }
+
+    /**
+     * Gère la pioche de destination par le joueurs
+     */
+    private void piocherCarteDestination(){
+        String choix;
+        List<Destination> pioche = new ArrayList<Destination>();
+        boolean peutPasser = false;
+
+        for(int i=0; i<4; i++){
+            pioche.add(this.jeu.piocheDestination());
+        }
+
+        List<Bouton> boutons = new ArrayList<Bouton>();
+
+        for(int i=0; i<4; i++){
+            if(pioche.get(i) != null){
+                boutons.add(new Bouton(pioche.get(i).toString()));
+            }
+        }
+
+        do{
+            choix = choisir("Choisissez la/les destination(s) que vous souhaitez conserver", null, boutons, peutPasser);
+            
+            log(String.format("%s conserve une destination", toLog()));
+
+            for(int i=0; i<pioche.size(); i++){
+                if(choix.equals(pioche.get(i).toString())){
+                    boutons.remove(i);
+                    this.destinations.add(pioche.get(i));
+                    pioche.remove(i);
+                }
+            }
+
+            peutPasser = true;
+
+        }while(!choix.equals(""));
+
+        for(int i=0; i<pioche.size(); i++){
+            this.jeu.replacerDestination(pioche.get(i));
+        }
+
     }
 
 

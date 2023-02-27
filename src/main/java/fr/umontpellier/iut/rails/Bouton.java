@@ -8,6 +8,10 @@ public record Bouton(
         this(valeur, valeur);
     }
 
+    public String getvaleur(){
+        return valeur;
+    }
+
     public String toPrompt() {
         if (label.equals(valeur)) {
             return valeur;

@@ -191,6 +191,10 @@ public class Jeu implements Runnable {
         }
     }
 
+    public void replacerDestination(Destination destination){
+        this.pileDestinations.add(destination);
+    }
+
     public boolean piocheDestinationEstVide() {
         return pileDestinations.size()==0;
     }
