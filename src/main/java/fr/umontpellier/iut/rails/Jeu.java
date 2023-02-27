@@ -178,6 +178,26 @@ public class Jeu implements Runnable {
     }
 
     /**
+     * Pioche une carte de la pile de pioche des destinations.
+     *
+     * @return la carte qui a été piochée (ou null si aucune carte disponible)
+     */
+    public Destination piocheDestination(){
+        if(!piocheDestinationEstVide()){
+            return this.pileDestinations.remove(0);
+        }
+        else{
+            return null;
+        }
+    }
+
+    public boolean piocheDestinationEstVide() {
+        return pileDestinations.size()==0;
+    }
+
+
+
+    /**
      * Ajoute un message au log du jeu
      */
     public void log(String message) {
