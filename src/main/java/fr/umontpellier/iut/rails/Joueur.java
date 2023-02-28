@@ -124,7 +124,7 @@ public class Joueur {
                     nbCarteTransportPioche = this.piocherCarteTransport(nbCarteTransportPioche);
                 }
                 if(choix.equals("échanger des pions wagons ou bateaux")) {
-                    //TODO
+                    //TODO (SOREN)
                 }
                 if(choix.equals("Prendre de nouvelles destinations")){
                     piocherCarteDestination();
