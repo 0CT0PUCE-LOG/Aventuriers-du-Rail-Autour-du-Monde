@@ -189,11 +189,9 @@ public class Joueur {
                 log(String.format("%s %s", toLog(), choix));
                 if(choix.equals("pioche une carte wagon")){
                     this.cartesTransport.add(this.jeu.piocherCarteWagon());
-                    this.nbPionsWagon++;
                 }
                 if(choix.equals("pioche une carte bateau")){
                     this.cartesTransport.add(this.jeu.piocherCarteBateau());
-                    this.nbPionsBateau++;
                 }
                 nbCartePioche++;
             }
