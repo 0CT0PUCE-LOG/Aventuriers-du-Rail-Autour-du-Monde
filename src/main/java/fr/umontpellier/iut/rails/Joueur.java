@@ -2,7 +2,9 @@ package fr.umontpellier.iut.rails;
 
 import fr.umontpellier.iut.rails.data.*;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class Joueur {
     public enum CouleurJouer {
@@ -125,6 +127,7 @@ public class Joueur {
                 }
                 if(choix.equals("échanger des pions wagons ou bateaux")) {
                     //TODO (SOREN)
+                    echangerPion();
                 }
                 if(choix.equals("Prendre de nouvelles destinations")){
                     piocherCarteDestination();
@@ -248,6 +251,40 @@ public class Joueur {
             this.jeu.replacerDestination(pioche.get(i));
         }
 
+    }
+
+    private void echangerPion(){
+        List<Bouton> boutons = Arrays.asList(
+                new Bouton("échanger un pion Bateau contre un pion Wagon", "échange un pion Bateau contre un pion Wagon"),
+                new Bouton("échanger un pion Wagon contre un pion Bateau", "échange un pion Wagon contre un pion Bateau"),
+                new Bouton("Retour"));
+        List<Bouton> boutonsWagon = Arrays.asList(
+                new Bouton("moins", "moins"),
+                new Bouton("plus", "plus"),
+                new Bouton("Retour"));
+
+        String choix;
+
+        do{
+            choix = choisir("Choisissez contre quel pion vous voulez échanger un pion", null, boutons, false);
+
+            if(!choix.equals("Retour")){
+                log(String.format("%s %s", toLog(), choix));
+                if(choix.equals("échange un pion Bateau contre un pion Wagon")){
+                    choix=choisir("Appuyez sur les boutons ci dessous pour modifier la quantité de pions Bateau à échanger contre des pions Wagon",null,boutonsWagon,false);
+                    if(choix.equals("plus")){
+                        Label nb = new Label("nb plus");
+                    }
+                }
+                if(choix.equals("échange un pion Wagon contre un pion Bateau")){
+                    this.cartesTransport.add(this.jeu.piocherCarteBateau());
+                }
+            }
+            else if(!choix.equals("Retour")){
+                log(String.format("Impossible de piocher %s a déjà pioché 2 cartes", toLog()));
+            }
+
+        }while(!choix.equals("Retour"));
     }
 
 
