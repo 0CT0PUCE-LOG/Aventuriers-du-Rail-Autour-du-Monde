@@ -94,9 +94,6 @@ public class Joueur {
      *  - construire un port
      */
     void jouerTour() {
-        //choix 1 : piocher des cartes transports
-        //afficher cartes pioches
-        //JE FAIS DES TESTS POUR COMPRENDRE LES FONCTIONS
         int nbCarteTransportPioche = 0;
         String choix;
         boolean peutPasser = false;
@@ -125,13 +122,19 @@ public class Joueur {
             if(choix.equals("Piocher une carte transport")){
                 nbCarteTransportPioche = this.piocherCarteTransport(nbCarteTransportPioche);
             }
-            if (choix.equals("échanger des pions wagons ou bateaux")) {
+            if(choix.equals("échanger des pions wagons ou bateaux")) {
                 //TODO
             }
             if(choix.equals("Prendre de nouvelles destinations")){
                 piocherCarteDestination();
                 peutPasser = true;
                 //TODO supprimer le bouton de destination (Je m'en occupe)
+            }
+            if(choix.equals("Capturer une route")) {
+                //TODO
+            }
+            if(choix.equals("Construire un port")){
+                //TODO
             }
         }
 
