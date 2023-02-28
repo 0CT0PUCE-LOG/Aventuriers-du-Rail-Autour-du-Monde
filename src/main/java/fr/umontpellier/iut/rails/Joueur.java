@@ -109,33 +109,31 @@ public class Joueur {
                 new Bouton("Capturer une route"),
                 new Bouton("Construire un port"));
 
-        do{
-            choix = choisir(
+
+        choix = choisir(
                 "Choisissez l'action à exécuter durant votre tour :",
                 null,
                 boutons,
                 peutPasser);
 
-            if (choix.equals("")) {
-                log(String.format("%s passe son tour", toLog()));
-            } 
-            else {
-                log(String.format("%s a choisi %s", toLog(), choix));
+        if (choix.equals("")) {
+            log(String.format("%s passe son tour", toLog()));
+        }
+        else {
+            log(String.format("%s a choisi %s", toLog(), choix));
 
-                if(choix.equals("Piocher une carte transport")){
-                    nbCarteTransportPioche = this.piocherCarteTransport(nbCarteTransportPioche);
-                }
-                if (choix.equals("échanger des pions wagons ou bateaux")) {
-                    //TODO
-                }
-                if(choix.equals("Prendre de nouvelles destinations")){
-                    piocherCarteDestination();
-                    peutPasser = true;
-                    //TODO supprimer le bouton de destination (Je m'en occupe)
-                }
+            if(choix.equals("Piocher une carte transport")){
+                nbCarteTransportPioche = this.piocherCarteTransport(nbCarteTransportPioche);
             }
-
-        }while(!choix.equals(""));
+            if (choix.equals("échanger des pions wagons ou bateaux")) {
+                //TODO
+            }
+            if(choix.equals("Prendre de nouvelles destinations")){
+                piocherCarteDestination();
+                peutPasser = true;
+                //TODO supprimer le bouton de destination (Je m'en occupe)
+            }
+        }
 
         //NE PAS SUPPRIMER
         // IMPORTANT : Le corps de cette fonction est à réécrire entièrement
@@ -171,6 +169,7 @@ public class Joueur {
      * @return la carte qui a été piochée (ou null si aucune carte disponible)
      */
     private int piocherCarteTransport(int nbCartePioche){
+        boolean fini = false;
         //TODO cette métode ne prend pas en charge les joker
         List<Bouton> boutons = Arrays.asList(
                 new Bouton("piocher une carte wagon", "pioche une carte wagon"),
@@ -179,24 +178,31 @@ public class Joueur {
 
         String choix;
 
-        do{
+        while(!fini){
             choix = choisir("Choisissez dans quel pile vous souhaitez piocher", null, boutons, false);
             
             if(nbCartePioche<2 && !choix.equals("Retour")){
                 log(String.format("%s %s", toLog(), choix));
                 if(choix.equals("pioche une carte wagon")){
                     this.cartesTransport.add(this.jeu.piocherCarteWagon());
+                    this.nbPionsWagon++;
                 }
                 if(choix.equals("pioche une carte bateau")){
                     this.cartesTransport.add(this.jeu.piocherCarteBateau());
+                    this.nbPionsBateau++;
                 }
                 nbCartePioche++;
             }
             else if(nbCartePioche==2 && !choix.equals("Retour")){
                 log(String.format("Impossible de piocher %s a déjà pioché 2 cartes", toLog()));
+                fini=true;
+            }
+            if(nbCartePioche==2){
+                nbCartePioche=0;
+                fini=true;
             }
 
-        }while(!choix.equals("Retour"));
+        }
 
         return nbCartePioche;
     }
