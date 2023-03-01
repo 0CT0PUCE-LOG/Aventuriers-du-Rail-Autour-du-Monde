@@ -98,7 +98,6 @@ public class Joueur {
     void jouerTour() {
         int nbCarteTransportPioche = 0;
         String choix;
-        boolean peutPasser = false;
 
 
         List<Bouton> boutons = Arrays.asList(
@@ -109,39 +108,35 @@ public class Joueur {
                 new Bouton("Construire un port"));
 
 
-        do{
-            choix = choisir(
-                    "Choisissez l'action à exécuter durant votre tour :",
-                    null,
-                    boutons,
-                    peutPasser);
+        choix = choisir(
+                "Choisissez l'action à exécuter durant votre tour :",
+                null,
+                boutons,
+                false);
 
-            if (choix.equals("")) {
-                log(String.format("%s passe son tour", toLog()));
-            }
-            else {
-                log(String.format("%s a choisi %s", toLog(), choix));
+        if (choix.equals("")) {
+            log(String.format("%s passe son tour", toLog()));
+        }
+        else {
+            log(String.format("%s a choisi %s", toLog(), choix));
 
-                if(choix.equals("Piocher une carte transport")){
-                    nbCarteTransportPioche = this.piocherCarteTransport(nbCarteTransportPioche);
-                }
-                if(choix.equals("Échanger des pions Wagons ou Bateaux")) {
-                    //TODO (SOREN)
-                    echangerPion();
-                }
-                if(choix.equals("Prendre de nouvelles destinations")){
-                    piocherCarteDestination();
-                    peutPasser = true;
-                    //TODO supprimer le bouton de destination (Je m'en occupe)
-                }
-                if(choix.equals("Capturer une route")) {
-                    //TODO
-                }
-                if(choix.equals("Construire un port")){
-                    //TODO
-                }
+            if(choix.equals("Piocher une carte transport")){
+                nbCarteTransportPioche = this.piocherCarteTransport(nbCarteTransportPioche);
             }
-        }while(!choix.equals(""));
+            if(choix.equals("Échanger des pions Wagons ou Bateaux")) {
+                //TODO (SOREN)
+                echangerPion();
+            }
+            if(choix.equals("Prendre de nouvelles destinations")){
+                piocherCarteDestination();
+            }
+            if(choix.equals("Capturer une route")) {
+                //TODO
+            }
+            if(choix.equals("Construire un port")){
+                //TODO
+            }
+        }
 
         //NE PAS SUPPRIMER
         // IMPORTANT : Le corps de cette fonction est à réécrire entièrement
@@ -199,13 +194,13 @@ public class Joueur {
                 nbCartePioche++;
             }
             else if(nbCartePioche==2 && !choix.equals("Retour")){
-                log(String.format("Impossible de piocher %s a déjà pioché 2 cartes", toLog()));
+                log(String.format("Impossible de piocher %s a déjà assez pioché", toLog()));
             }
-            if(nbCartePioche==2){
-                nbCartePioche=0;
+            else if(nbCartePioche<2 && choix.equals("Retour")){
+                log(String.format("%s Veuillez piocher toutes vos cartes", toLog()));
             }
 
-        }while(!choix.equals("Retour"));
+        }while(!choix.equals("Retour") || nbCartePioche!=2);
 
         return nbCartePioche;
     }
