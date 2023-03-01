@@ -258,10 +258,7 @@ public class Joueur {
                 new Bouton("échanger un pion Bateau contre un pion Wagon", "échange un pion Bateau contre un pion Wagon"),
                 new Bouton("échanger un pion Wagon contre un pion Bateau", "échange un pion Wagon contre un pion Bateau"),
                 new Bouton("Retour"));
-        List<Bouton> boutonsWagon = Arrays.asList(
-                new Bouton("moins", "moins"),
-                new Bouton("plus", "plus"),
-                new Bouton("Retour"));
+        List<String> choixWagon = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25");
 
         String choix;
 
@@ -271,19 +268,52 @@ public class Joueur {
             if(!choix.equals("Retour")){
                 log(String.format("%s %s", toLog(), choix));
                 if(choix.equals("échange un pion Bateau contre un pion Wagon")){
-                    choix=choisir("Appuyez sur les boutons ci dessous pour modifier la quantité de pions Bateau à échanger contre des pions Wagon",null,boutonsWagon,false);
-                    if(choix.equals("plus")){
-                        Label nb = new Label("nb plus");
+                    String input = choisir("Entrez dans la zone de texte la quantité à échanger. Attention vous perdrez 1 point de score pour chaque pion échangé.", choixWagon, null, false);
+                    int nbWagon = Integer.parseInt(input);
+                    if(nbWagon <= this.nbPionsBateau){
+                        if(nbWagon <= this.nbPionsWagonEnReserve){
+                            if(nbWagon <= this.score){
+                                this.nbPionsBateauEnReserve-=nbWagon;
+                                this.nbPionsWagon+=nbWagon;
+                                this.score-=nbWagon;
+                                log(String.format("Vous venez d'échanger "+nbWagon+" pions Bateau\n contre "+nbWagon+" pions Wagon.",toLog()));
+                            }
+                            else{
+                                log(String.format("L'échange est impossible, Score trop bas pour\n pouvoir échanger.",toLog()));
+                            }
+                        }
+                        else{
+                            log(String.format("L'échange est impossible, pas assez de Pions Wagon\n en réserve.",toLog()));
+                        }
+                    }
+                    else{
+                        log(String.format("L'échange est impossible, pas assez de Pions Bateau\n à échanger.",toLog()));
                     }
                 }
                 if(choix.equals("échange un pion Wagon contre un pion Bateau")){
-                    this.cartesTransport.add(this.jeu.piocherCarteBateau());
+                    String input = choisir("Entrez dans la zone de texte la quantité à échanger. Attention vous perdrez 1 point de score pour chaque pion échangé.", choixWagon, null, false);
+                    int nbBateau = Integer.parseInt(input);
+                    if(nbBateau <= this.nbPionsWagon){
+                        if(nbBateau <= this.nbPionsBateauEnReserve){
+                            if(nbBateau <= this.score){
+                                this.nbPionsWagonEnReserve-=nbBateau;
+                                this.nbPionsBateau+=nbBateau;
+                                this.score-=nbBateau;
+                                log(String.format("Vous venez d'échanger "+nbBateau+" pions Bateau\n contre "+nbBateau+" pions Wagon.",toLog()));
+                            }
+                            else{
+                                log(String.format("L'échange est impossible, Score trop bas pour\n pouvoir échanger.",toLog()));
+                            }
+                        }
+                        else{
+                            log(String.format("L'échange est impossible, pas assez de Pions Wagon\n en réserve.",toLog()));
+                        }
+                    }
+                    else{
+                        log(String.format("L'échange est impossible, pas assez de Pions Bateau\n à échanger.",toLog()));
+                    }
                 }
             }
-            else if(!choix.equals("Retour")){
-                log(String.format("Impossible de piocher %s a déjà pioché 2 cartes", toLog()));
-            }
-
         }while(!choix.equals("Retour"));
     }
 
