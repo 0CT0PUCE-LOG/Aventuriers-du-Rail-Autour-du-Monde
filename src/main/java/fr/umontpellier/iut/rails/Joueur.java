@@ -103,7 +103,7 @@ public class Joueur {
 
         List<Bouton> boutons = Arrays.asList(
                 new Bouton("Piocher une carte transport"),
-                new Bouton("échanger des pions wagons ou bateaux"),
+                new Bouton("Échanger des pions Wagons ou Bateaux"),
                 new Bouton("Prendre de nouvelles destinations"),
                 new Bouton("Capturer une route"),
                 new Bouton("Construire un port"));
@@ -125,7 +125,7 @@ public class Joueur {
                 if(choix.equals("Piocher une carte transport")){
                     nbCarteTransportPioche = this.piocherCarteTransport(nbCarteTransportPioche);
                 }
-                if(choix.equals("échanger des pions wagons ou bateaux")) {
+                if(choix.equals("Échanger des pions Wagons ou Bateaux")) {
                     //TODO (SOREN)
                     echangerPion();
                 }
@@ -255,8 +255,8 @@ public class Joueur {
 
     private void echangerPion(){
         List<Bouton> boutons = Arrays.asList(
-                new Bouton("échanger un pion Bateau contre un pion Wagon", "échange un pion Bateau contre un pion Wagon"),
-                new Bouton("échanger un pion Wagon contre un pion Bateau", "échange un pion Wagon contre un pion Bateau"),
+                new Bouton("Échanger un pion Bateau contre un pion Wagon", "Échange un pion Bateau contre un pion Wagon"),
+                new Bouton("Échanger un pion Wagon contre un pion Bateau", "Échange un pion Wagon contre un pion Bateau"),
                 new Bouton("Retour"));
         List<String> choixWagon = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25");
 
@@ -267,14 +267,16 @@ public class Joueur {
 
             if(!choix.equals("Retour")){
                 log(String.format("%s %s", toLog(), choix));
-                if(choix.equals("échange un pion Bateau contre un pion Wagon")){
+                if(choix.equals("Échange un pion Bateau contre un pion Wagon")){
                     String input = choisir("Entrez dans la zone de texte la quantité à échanger. Attention vous perdrez 1 point de score pour chaque pion échangé.", choixWagon, null, false);
                     int nbWagon = Integer.parseInt(input);
                     if(nbWagon <= this.nbPionsBateau){
                         if(nbWagon <= this.nbPionsWagonEnReserve){
                             if(nbWagon <= this.score){
-                                this.nbPionsBateauEnReserve-=nbWagon;
                                 this.nbPionsWagon+=nbWagon;
+                                this.nbPionsBateau-=nbWagon;
+                                this.nbPionsWagonEnReserve-=nbWagon;
+                                this.nbPionsBateauEnReserve+=nbWagon;
                                 this.score-=nbWagon;
                                 log(String.format("Vous venez d'échanger "+nbWagon+" pions Bateau\n contre "+nbWagon+" pions Wagon.",toLog()));
                             }
@@ -290,14 +292,16 @@ public class Joueur {
                         log(String.format("L'échange est impossible, pas assez de Pions Bateau\n à échanger.",toLog()));
                     }
                 }
-                if(choix.equals("échange un pion Wagon contre un pion Bateau")){
+                if(choix.equals("Échange un pion Wagon contre un pion Bateau")){
                     String input = choisir("Entrez dans la zone de texte la quantité à échanger. Attention vous perdrez 1 point de score pour chaque pion échangé.", choixWagon, null, false);
                     int nbBateau = Integer.parseInt(input);
                     if(nbBateau <= this.nbPionsWagon){
                         if(nbBateau <= this.nbPionsBateauEnReserve){
                             if(nbBateau <= this.score){
-                                this.nbPionsWagonEnReserve-=nbBateau;
+                                this.nbPionsWagon-=nbBateau;
                                 this.nbPionsBateau+=nbBateau;
+                                this.nbPionsWagonEnReserve+=nbBateau;
+                                this.nbPionsBateauEnReserve-=nbBateau;
                                 this.score-=nbBateau;
                                 log(String.format("Vous venez d'échanger "+nbBateau+" pions Bateau\n contre "+nbBateau+" pions Wagon.",toLog()));
                             }
