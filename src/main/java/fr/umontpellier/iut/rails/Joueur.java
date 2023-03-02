@@ -131,7 +131,9 @@ public class Joueur {
                 piocherCarteDestination();
             }
             if(choix.equals("Capturer une route")) {
-                //TODO
+                //TODO (Norman je gère la fougère)
+                prendreRoute();
+                //TODO si pas pris de route le joueur re choisi une action;
             }
             if(choix.equals("Construire un port")){
                 //TODO
@@ -228,15 +230,21 @@ public class Joueur {
         do{
             choix = choisir("Choisissez la/les destination(s) que vous souhaitez conserver", null, boutons, peutPasser);
             
-            log(String.format("%s conserve une destination", toLog()));
+            if(!choix.equals("")){
+                log(String.format("%s conserve une destination", toLog()));
 
-            for(int i=0; i<pioche.size(); i++){
-                if(choix.equals(pioche.get(i).toString())){
-                    boutons.remove(i);
-                    this.destinations.add(pioche.get(i));
-                    pioche.remove(i);
+                for(int i=0; i<pioche.size(); i++){
+                    if(choix.equals(pioche.get(i).toString())){
+                        boutons.remove(i);
+                        this.destinations.add(pioche.get(i));
+                        pioche.remove(i);
+                    }
                 }
             }
+            else{
+                log(String.format("%s remet les cartes restantes au bas de la pile", toLog()));
+            }
+            
 
             peutPasser = true;
 
@@ -246,6 +254,22 @@ public class Joueur {
             this.jeu.replacerDestination(pioche.get(i));
         }
 
+    }
+
+    /**
+     * Gère la prise d'une route par un joueur
+     */
+    public void prendreRoute(){
+
+        List<String> optionsRoutes = new ArrayList<>();
+        for (Route route : jeu.getRoutesLibres()) {
+            optionsRoutes.add(route.getNom());
+        }
+
+        String choix = choisir("Selectionnez la route dont vous souhaitez prendre possession", optionsRoutes, null, true);
+
+        log(String.format("%s a choisi la route %s", toLog(), choix));
+        //TODO vérification condition de prise
     }
 
     private void echangerPion(){
@@ -305,7 +329,7 @@ public class Joueur {
                             }
                         }
                         else{
-                            log(String.format("L'échange est impossible, pas assez de Pions Wagon\n en réserve.",toLog()));
+                            log(String.format("L'échange est impossible, pas assez de Pions Bateau\n en réserve.",toLog()));
                         }
                     }
                     else{
