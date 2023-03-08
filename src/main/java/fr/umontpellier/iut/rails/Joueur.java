@@ -6,6 +6,8 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
+import javax.print.DocFlavor.STRING;
+
 public class Joueur {
     public enum CouleurJouer {
         JAUNE, ROUGE, BLEU, VERT, ROSE;
@@ -86,6 +88,55 @@ public class Joueur {
         return nom;
     }
 
+    public void setUp(){
+        for(int i=0; i<3;i++){
+            cartesTransport.add(jeu.piocherCarteWagon());
+        }
+        for(int i=0; i<7;i++){
+            cartesTransport.add(jeu.piocherCarteBateau());
+        }
+
+        piocherCarteDestination(5, 3);
+        
+        repartitionPions();
+        
+    }
+
+    private void repartitionPions(){
+        List<String> nombreWagonOption = Arrays.asList("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25");
+        List<String> nombreBateauOption = Arrays.asList("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50");
+        int nbPionsWagonChoisi;
+        int nbPionsBateauChoisi;
+        String choix;
+        do{
+            choix = choisir(
+                    "Entrez le nombre de pion wagon à conserver parmis les " + nbPionsWagonEnReserve + " en réserve (la somme des wagon et des bateau devras être égale à 60)",
+                    nombreWagonOption,
+                    null,
+                    false);
+            nbPionsWagonChoisi = Integer.valueOf(choix);
+
+            choix = choisir(
+                    "Entrez le nombre de pion bateau à conserver parmis les " + nbPionsBateauEnReserve + " en réserve (la somme des wagon et des bateau devras être égale à 60)",
+                    nombreBateauOption,
+                    null,
+                    false);
+            nbPionsBateauChoisi = Integer.valueOf(choix);
+
+            if((nbPionsBateauChoisi + nbPionsWagonChoisi) != 60){
+                log("La somme des pions conservés par " + toLog() + " n'est pas égale à 60");
+            }
+        }while((nbPionsBateauChoisi + nbPionsWagonChoisi) != 60);
+
+        nbPionsBateauEnReserve -= nbPionsBateauChoisi;
+        nbPionsBateau += nbPionsBateauChoisi;
+
+        nbPionsWagonEnReserve -= nbPionsWagonChoisi;
+        nbPionsWagon += nbPionsWagonChoisi;
+    }
+
+
+
     /**
      * Cette méthode est appelée à tour de rôle pour chacun des joueurs de la partie.
      * Elle doit réaliser un tour de jeu, pendant lequel le joueur a le choix entre 5 actions possibles :
@@ -98,6 +149,7 @@ public class Joueur {
     void jouerTour() {
         int nbCarteTransportPioche = 0;
         String choix;
+        boolean aJoue = false;
 
 
         List<Bouton> boutons = Arrays.asList(
@@ -107,38 +159,40 @@ public class Joueur {
                 new Bouton("Capturer une route"),
                 new Bouton("Construire un port"));
 
+        do{
+            choix = choisir(
+                    "Choisissez l'action à exécuter durant votre tour :",
+                    null,
+                    boutons,
+                    false);
 
-        choix = choisir(
-                "Choisissez l'action à exécuter durant votre tour :",
-                null,
-                boutons,
-                false);
+            if (choix.equals("")) {
+                log(String.format("%s passe son tour", toLog()));
+            }
+            else {
+                log(String.format("%s a choisi %s", toLog(), choix));
 
-        if (choix.equals("")) {
-            log(String.format("%s passe son tour", toLog()));
-        }
-        else {
-            log(String.format("%s a choisi %s", toLog(), choix));
-
-            if(choix.equals("Piocher une carte transport")){
-                nbCarteTransportPioche = this.piocherCarteTransport(nbCarteTransportPioche);
+                if(choix.equals("Piocher une carte transport")){
+                    aJoue = this.piocherCarteTransport();
+                }
+                if(choix.equals("Échanger des pions Wagons ou Bateaux")) {
+                    //TODO (SOREN)
+                    echangerPion();
+                    aJoue = true;
+                }
+                if(choix.equals("Prendre de nouvelles destinations")){
+                    piocherCarteDestination(4,1);
+                    aJoue = true;
+                }
+                if(choix.equals("Capturer une route")) {
+                    //TODO (Norman je gère la fougère)
+                    aJoue = prendreRoute();
+                }
+                if(choix.equals("Construire un port")){
+                    //TODO
+                }
             }
-            if(choix.equals("Échanger des pions Wagons ou Bateaux")) {
-                //TODO (SOREN)
-                echangerPion();
-            }
-            if(choix.equals("Prendre de nouvelles destinations")){
-                piocherCarteDestination();
-            }
-            if(choix.equals("Capturer une route")) {
-                //TODO (Norman je gère la fougère)
-                prendreRoute();
-                //TODO si pas pris de route le joueur re choisi une action;
-            }
-            if(choix.equals("Construire un port")){
-                //TODO
-            }
-        }
+        }while(!aJoue);
 
         //NE PAS SUPPRIMER
         // IMPORTANT : Le corps de cette fonction est à réécrire entièrement
@@ -173,27 +227,57 @@ public class Joueur {
      * 
      * @return la carte qui a été piochée (ou null si aucune carte disponible)
      */
-    private int piocherCarteTransport(int nbCartePioche){
-        //TODO cette métode ne prend pas en charge les joker
+    private boolean piocherCarteTransport(){
+        //TODO cette métode ne prend pas en charge les jo
+        int nbCartePioche = 0;
         List<Bouton> boutons = Arrays.asList(
-                new Bouton("piocher une carte wagon", "pioche une carte wagon"),
-                new Bouton("piocher une carte bateau", "pioche une carte bateau"),
                 new Bouton("Retour"));
 
         String choix;
 
         do{
-            choix = choisir("Choisissez dans quel pile vous souhaitez piocher", null, boutons, false);
+            List<String> optionPioche = new ArrayList<String>();
+            optionPioche.add("WAGON");
+            optionPioche.add("BATEAU");
+            for(int i=0; i<jeu.getCartesTransportVisibles().size();i++){
+                optionPioche.add(jeu.getCartesTransportVisibles().get(i).getNom());
+            }
+
+            choix = choisir("Choisissez quel carte piocher", optionPioche, boutons, false);
             
             if(nbCartePioche<2 && !choix.equals("Retour")){
                 log(String.format("%s %s", toLog(), choix));
-                if(choix.equals("pioche une carte wagon")){
+                if(choix.equals("WAGON")){
                     this.cartesTransport.add(this.jeu.piocherCarteWagon());
+                    nbCartePioche++;
                 }
-                if(choix.equals("pioche une carte bateau")){
+                else if(choix.equals("BATEAU")){
                     this.cartesTransport.add(this.jeu.piocherCarteBateau());
+                    nbCartePioche++;
                 }
-                nbCartePioche++;
+                else{
+                    //TODO detection lorsqu'il y a 3 joker en carte visible afin de reset;
+                    CarteTransport carte = jeu.getCarteTransportVisiblesFromNom(choix);
+                    if(carte.getType()==TypeCarteTransport.JOKER){
+                        if(nbCartePioche == 0){
+                            this.cartesTransport.add(carte);
+                            nbCartePioche +=2;
+                            jeu.removeCarteTransportVisibles(carte);
+                            remplacerCarteTransportVisible();
+
+                        }
+                    }
+                    else{
+                        if(nbCartePioche<2){
+                            this.cartesTransport.add(carte);
+                            nbCartePioche++;
+                            jeu.removeCarteTransportVisibles(carte);
+                            remplacerCarteTransportVisible();
+                        }
+                    }
+                    
+                }
+                
             }
             else if(nbCartePioche==2 && !choix.equals("Retour")){
                 log(String.format("Impossible de piocher %s a déjà assez pioché", toLog()));
@@ -204,24 +288,39 @@ public class Joueur {
 
         }while(!choix.equals("Retour") || nbCartePioche!=2);
 
-        return nbCartePioche;
+        boolean aPioche = !(nbCartePioche==0);
+        return aPioche;
+    }
+
+    private void remplacerCarteTransportVisible(){
+        if(!jeu.piocheBateauEstVide() || !jeu.piocheWagonEstVide()){
+
+            String choix = choisir("Choisissez dans quel deck piocher pour remplacer la carte visible",Arrays.asList("WAGON","BATEAU") , null, false);
+            if(choix.equals("WAGON")){
+                jeu.addCartesTransportVisibles(this.jeu.piocherCarteWagon());
+            }
+            else if(choix.equals("BATEAU")){
+                jeu.addCartesTransportVisibles(this.jeu.piocherCarteBateau());
+            }
+        }
     }
 
     /**
      * Gère la pioche de destination par le joueurs
      */
-    private void piocherCarteDestination(){
+    private void piocherCarteDestination(int nbCartePioche, int nbCarteMin){
         String choix;
         List<Destination> pioche = new ArrayList<Destination>();
+        int nbCarteGarde = 0;
         boolean peutPasser = false;
 
-        for(int i=0; i<4; i++){
+        for(int i=0; i<nbCartePioche; i++){
             pioche.add(this.jeu.piocheDestination());
         }
 
         List<Bouton> boutons = new ArrayList<Bouton>();
 
-        for(int i=0; i<4; i++){
+        for(int i=0; i<nbCartePioche; i++){
             if(pioche.get(i) != null){
                 boutons.add(new Bouton(pioche.get(i).toString()));
             }
@@ -238,15 +337,16 @@ public class Joueur {
                         boutons.remove(i);
                         this.destinations.add(pioche.get(i));
                         pioche.remove(i);
+                        nbCarteGarde++;
+                        if(nbCarteGarde>= nbCarteMin){
+                            peutPasser = true;
+                        }
                     }
                 }
             }
             else{
                 log(String.format("%s remet les cartes restantes au bas de la pile", toLog()));
             }
-            
-
-            peutPasser = true;
 
         }while(!choix.equals(""));
 
@@ -259,7 +359,7 @@ public class Joueur {
     /**
      * Gère la prise d'une route par un joueur
      */
-    private void prendreRoute(){
+    private boolean prendreRoute(){
         String choix;
         boolean aPrisRoute = false;
 
@@ -283,6 +383,7 @@ public class Joueur {
                     /*TODO le joueur doit choisir quel carte il souhaite defausser (ou automatique selon interface)
                      *déduction des pions et attribution de la route
                      *à faire après l'implémentation du début de partie
+                     *attention a créer une méthode dans jeu pour supprimer une route
                      */
 
                     aPrisRoute = true;
@@ -292,15 +393,14 @@ public class Joueur {
                 log(toLog() + " impossible de prendre cette route !");
             }
 
-        }while(choix != " " && !aPrisRoute);
-        
-
-        
-
-
-        //TODO vérification condition de prise
+        }while(choix != "" && !aPrisRoute);
+        return aPrisRoute;
     }
 
+    /**
+     * @param route une route voulant être prise par la joueur
+     * @return true si le joueur peut prendre la route
+     */
     private boolean peutPrendreRoute(Route route){
         boolean estPossible = true;
         if(route.getClass().getName() == "fr.umontpellier.iut.rails.RouteTerrestre"){
@@ -333,6 +433,9 @@ public class Joueur {
         for(int i = 0; i<cartesTransport.size();i++){
             if(cartesTransport.get(i).getType() == type || cartesTransport.get(i).getType() == TypeCarteTransport.JOKER){
                 compteur++;
+                if(cartesTransport.get(i).estDouble()){
+                    compteur++;
+                }
             }
         }
         return compteur;
@@ -343,6 +446,9 @@ public class Joueur {
         for(int i = 0; i<cartesTransport.size();i++){
             if((cartesTransport.get(i).getCouleur() == couleur && cartesTransport.get(i).getType() == type) || cartesTransport.get(i).getType() == TypeCarteTransport.JOKER){
                 compteur++;
+                if(cartesTransport.get(i).estDouble()){
+                    compteur++;
+                }
             }
         }
         return compteur;

@@ -143,6 +143,23 @@ public class Jeu implements Runnable {
         return new ArrayList<>(cartesTransportVisibles);
     }
 
+    public void addCartesTransportVisibles(CarteTransport carte){
+        cartesTransportVisibles.add(carte);
+    }
+
+    public CarteTransport getCarteTransportVisiblesFromNom(String nom){
+        int i = 0;
+        while(!nom.equals(cartesTransportVisibles.get(i).getNom())){
+            i++;
+        }
+        CarteTransport carte = cartesTransportVisibles.get(i);
+        return carte;
+    }
+
+    public boolean removeCarteTransportVisibles(CarteTransport carte){
+        return cartesTransportVisibles.remove(carte);
+    }
+
     /**
      * Exécute la partie
      *
@@ -154,6 +171,15 @@ public class Jeu implements Runnable {
     public void run() {
         // IMPORTANT : Le corps de cette fonction est à réécrire entièrement
         // Un exemple très simple est donné pour illustrer l'utilisation de certaines méthodes
+        for (Joueur j: joueurs) {
+            joueurCourant = j;
+            j.setUp();
+        }
+        for(int i=0; i<3; i++){
+            cartesTransportVisibles.add(piocherCarteBateau());
+            cartesTransportVisibles.add(piocherCarteWagon());
+        }
+
         for (Joueur j : joueurs) {
             joueurCourant = j;
             j.jouerTour();
