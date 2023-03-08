@@ -127,6 +127,20 @@ public class Jeu implements Runnable {
         return new ArrayList<>(routesLibres);
     }
 
+    /**
+     * Renvoie une route se trouvant dans la liste routesLibres
+     * @param nom Le nom d'une route
+     * @return une route 
+     */
+    public Route getRouteFromNom(String nom){
+        int i = 0;
+        while(!nom.equals(this.routesLibres.get(i).getNom())){
+            i++;
+        }
+        Route route = this.getRoutesLibres().get(i);
+        return route;
+    }
+
     public List<CarteTransport> getCartesTransportVisibles() {
         return new ArrayList<>(cartesTransportVisibles);
     }

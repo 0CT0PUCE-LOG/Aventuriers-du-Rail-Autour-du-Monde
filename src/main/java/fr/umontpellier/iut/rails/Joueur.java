@@ -259,17 +259,93 @@ public class Joueur {
     /**
      * Gère la prise d'une route par un joueur
      */
-    public void prendreRoute(){
+    private void prendreRoute(){
+        String choix;
+        boolean aPrisRoute = false;
 
-        List<String> optionsRoutes = new ArrayList<>();
-        for (Route route : jeu.getRoutesLibres()) {
-            optionsRoutes.add(route.getNom());
-        }
+        do{
+            List<String> optionsRoutes = new ArrayList<>();
+            for (Route route : jeu.getRoutesLibres()) {
+                optionsRoutes.add(route.getNom());
+            }
 
-        String choix = choisir("Selectionnez la route dont vous souhaitez prendre possession", optionsRoutes, null, true);
+            choix = choisir("Selectionnez la route dont vous souhaitez prendre possession", optionsRoutes, null, true);
+            log(String.format("%s a choisi la route %s", toLog(), choix));
+            Route routeChoisie = jeu.getRouteFromNom(choix);
+            
+            if(!peutPrendreRoute(routeChoisie)){
+                List<Bouton> boutons = Arrays.asList(
+                        new Bouton("Retour"),
+                        new Bouton("Oui"));
 
-        log(String.format("%s a choisi la route %s", toLog(), choix));
+                choix = choisir("Voulez vous capturer la route " + routeChoisie.toString() + " de couleur "+ routeChoisie.getCouleur() +" ?", null,boutons, false);
+                if(choix.equals("Oui")){
+                    /*TODO le joueur doit choisir quel carte il souhaite defausser (ou automatique selon interface)
+                     *déduction des pions et attribution de la route
+                     *à faire après l'implémentation du début de partie
+                     */
+
+                    aPrisRoute = true;
+                }
+            }
+            else{
+                log(toLog() + " impossible de prendre cette route !");
+            }
+
+        }while(choix != " " && !aPrisRoute);
+        
+
+        
+
+
         //TODO vérification condition de prise
+    }
+
+    private boolean peutPrendreRoute(Route route){
+        boolean estPossible = true;
+        if(route.getClass().getName() == "fr.umontpellier.iut.rails.RouteTerrestre"){
+            if(route.getLongueur()> nbPionsWagon){
+                estPossible = false;
+            }
+            else if(route.getCouleur() == Couleur.GRIS && route.getLongueur() > nombreCarteTransport(TypeCarteTransport.WAGON)){
+                estPossible = false;
+            }
+            else if(route.getLongueur() > nombreCarteTransportDeCouleur(TypeCarteTransport.WAGON, route.getCouleur())){
+                estPossible = false;
+            }
+        }
+        else if(route.getClass().getName() == "fr.umontpellier.iut.rails.RouteMaritime"){
+            if(route.getLongueur()> nbPionsBateau){
+                estPossible = false;
+            }
+            else if(route.getCouleur() == Couleur.GRIS && route.getLongueur() > nombreCarteTransport(TypeCarteTransport.BATEAU)){
+                estPossible = false;
+            }
+            else if(route.getLongueur() > nombreCarteTransportDeCouleur(TypeCarteTransport.BATEAU, route.getCouleur())){
+                estPossible = false;
+            }
+        }
+        return estPossible;
+    }
+
+    private int nombreCarteTransport(TypeCarteTransport type){
+        int compteur = 0;
+        for(int i = 0; i<cartesTransport.size();i++){
+            if(cartesTransport.get(i).getType() == type || cartesTransport.get(i).getType() == TypeCarteTransport.JOKER){
+                compteur++;
+            }
+        }
+        return compteur;
+    }
+
+    private int nombreCarteTransportDeCouleur(TypeCarteTransport type ,Couleur couleur){
+        int compteur = 0;
+        for(int i = 0; i<cartesTransport.size();i++){
+            if((cartesTransport.get(i).getCouleur() == couleur && cartesTransport.get(i).getType() == type) || cartesTransport.get(i).getType() == TypeCarteTransport.JOKER){
+                compteur++;
+            }
+        }
+        return compteur;
     }
 
     private void echangerPion(){
