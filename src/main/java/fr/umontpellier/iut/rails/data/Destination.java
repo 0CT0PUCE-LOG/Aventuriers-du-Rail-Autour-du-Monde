@@ -48,7 +48,6 @@ public class Destination {
         this(new ArrayList<>(List.of(ville1, ville2)), valeur, valeur, valeur);
     }
 
-
     public String toString() {
         StringJoiner sj = new StringJoiner(" - ");
         for (String ville : villes) {
@@ -59,6 +58,10 @@ public class Destination {
         } else {
             return String.format("%s (%d, %d, %d)", sj, valeurSimple, valeurMax, penalite);
         }
+    }
+
+    public String getNom(){
+        return nom;
     }
 
     /**

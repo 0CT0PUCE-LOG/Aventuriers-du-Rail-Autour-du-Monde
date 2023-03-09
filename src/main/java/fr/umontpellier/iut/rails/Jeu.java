@@ -171,13 +171,16 @@ public class Jeu implements Runnable {
     public void run() {
         // IMPORTANT : Le corps de cette fonction est à réécrire entièrement
         // Un exemple très simple est donné pour illustrer l'utilisation de certaines méthodes
-        for (Joueur j: joueurs) {
-            joueurCourant = j;
-            j.setUp();
-        }
+
+        //ajoue des cartes de Transport Visible
         for(int i=0; i<3; i++){
             cartesTransportVisibles.add(piocherCarteBateau());
             cartesTransportVisibles.add(piocherCarteWagon());
+        }
+
+        for (Joueur j: joueurs) {
+            joueurCourant = j;
+            j.setUp();
         }
 
         for (Joueur j : joueurs) {

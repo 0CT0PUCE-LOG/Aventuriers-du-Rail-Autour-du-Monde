@@ -103,30 +103,19 @@ public class Joueur {
     }
 
     private void repartitionPions(){
-        List<String> nombreWagonOption = Arrays.asList("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25");
-        List<String> nombreBateauOption = Arrays.asList("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50");
+        List<String> nombreWagonOption = Arrays.asList("10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25");
         int nbPionsWagonChoisi;
         int nbPionsBateauChoisi;
         String choix;
-        do{
-            choix = choisir(
-                    "Entrez le nombre de pion wagon à conserver parmis les " + nbPionsWagonEnReserve + " en réserve (la somme des wagon et des bateau devras être égale à 60)",
-                    nombreWagonOption,
-                    null,
-                    false);
-            nbPionsWagonChoisi = Integer.valueOf(choix);
 
-            choix = choisir(
-                    "Entrez le nombre de pion bateau à conserver parmis les " + nbPionsBateauEnReserve + " en réserve (la somme des wagon et des bateau devras être égale à 60)",
-                    nombreBateauOption,
-                    null,
-                    false);
-            nbPionsBateauChoisi = Integer.valueOf(choix);
+        choix = choisir(
+                "Entrez le nombre de pion wagon à conserver parmis les " + nbPionsWagonEnReserve + " en réserve (la somme des wagon et des bateau devras être égale à 60)",
+                nombreWagonOption,
+                null,
+                false);
+        nbPionsWagonChoisi = Integer.valueOf(choix);
 
-            if((nbPionsBateauChoisi + nbPionsWagonChoisi) != 60){
-                log("La somme des pions conservés par " + toLog() + " n'est pas égale à 60");
-            }
-        }while((nbPionsBateauChoisi + nbPionsWagonChoisi) != 60);
+        nbPionsBateauChoisi = 60 - nbPionsWagonChoisi;
 
         nbPionsBateauEnReserve -= nbPionsBateauChoisi;
         nbPionsBateau += nbPionsBateauChoisi;
@@ -147,7 +136,6 @@ public class Joueur {
      *  - construire un port
      */
     void jouerTour() {
-        int nbCarteTransportPioche = 0;
         String choix;
         boolean aJoue = false;
 
@@ -155,14 +143,16 @@ public class Joueur {
         List<Bouton> boutons = Arrays.asList(
                 new Bouton("Piocher une carte transport"),
                 new Bouton("Échanger des pions Wagons ou Bateaux"),
-                new Bouton("Prendre de nouvelles destinations"),
                 new Bouton("Capturer une route"),
                 new Bouton("Construire un port"));
+        List<String> options = new ArrayList<String>();
+        options.add("DESTINATION");
+
 
         do{
             choix = choisir(
                     "Choisissez l'action à exécuter durant votre tour :",
-                    null,
+                    options,
                     boutons,
                     false);
 
@@ -180,7 +170,7 @@ public class Joueur {
                     echangerPion();
                     aJoue = true;
                 }
-                if(choix.equals("Prendre de nouvelles destinations")){
+                if(choix.equals("DESTINATION")){
                     piocherCarteDestination(4,1);
                     aJoue = true;
                 }
@@ -311,8 +301,8 @@ public class Joueur {
     private void piocherCarteDestination(int nbCartePioche, int nbCarteMin){
         String choix;
         List<Destination> pioche = new ArrayList<Destination>();
-        int nbCarteGarde = 0;
-        boolean peutPasser = false;
+        int nbCarteGarde = nbCartePioche;
+        boolean peutPasser = true;
 
         for(int i=0; i<nbCartePioche; i++){
             pioche.add(this.jeu.piocheDestination());
@@ -322,36 +312,38 @@ public class Joueur {
 
         for(int i=0; i<nbCartePioche; i++){
             if(pioche.get(i) != null){
-                boutons.add(new Bouton(pioche.get(i).toString()));
+                boutons.add(new Bouton(pioche.get(i).toString(), pioche.get(i).getNom()));
             }
         }
 
         do{
-            choix = choisir("Choisissez la/les destination(s) que vous souhaitez conserver", null, boutons, peutPasser);
+            choix = choisir("Choisissez la/les destination(s) que vous ne souhaitez pas conserver", null, boutons, peutPasser);
             
             if(!choix.equals("")){
-                log(String.format("%s conserve une destination", toLog()));
+                
+                if(nbCarteGarde>nbCarteMin){
 
-                for(int i=0; i<pioche.size(); i++){
-                    if(choix.equals(pioche.get(i).toString())){
-                        boutons.remove(i);
-                        this.destinations.add(pioche.get(i));
-                        pioche.remove(i);
-                        nbCarteGarde++;
-                        if(nbCarteGarde>= nbCarteMin){
-                            peutPasser = true;
+                    log(String.format("%s remet une carte au bas de la pile", toLog()));
+
+                    for(int i=0; i<pioche.size(); i++){
+                        if(choix.equals(pioche.get(i).getNom())){
+                            boutons.remove(i);
+                            jeu.replacerDestination(pioche.get(i));
+                            pioche.remove(i);
+                            nbCarteGarde--;
                         }
                     }
                 }
+                
             }
             else{
-                log(String.format("%s remet les cartes restantes au bas de la pile", toLog()));
+                log(String.format("%s ajoute les cartes destination à son jeu", toLog()));
             }
 
-        }while(!choix.equals(""));
+        }while(!choix.equals("") && nbCarteGarde!=nbCarteMin);
 
         for(int i=0; i<pioche.size(); i++){
-            this.jeu.replacerDestination(pioche.get(i));
+            this.destinations.add(pioche.get(i));
         }
 
     }
