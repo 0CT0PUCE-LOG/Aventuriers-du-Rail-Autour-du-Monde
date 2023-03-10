@@ -457,8 +457,8 @@ public class Joueur {
         List<String> choixWagon = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25");
         */
         String choix;
-        if(mode == "PIONS WAGON"){
-            int nbWagon;
+        if(mode.equals("PIONS WAGON")){
+            int nbWagon = 0;
             log(String.format("ECHANGE PIONS WAGON",toLog()));
             List<String> nombreWagonOption = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25");
             choix = choisir(
@@ -466,7 +466,9 @@ public class Joueur {
                     nombreWagonOption,
                     null,
                     false);
-            nbWagon = Integer.valueOf(choix);
+            while(nbWagon<1 || nbWagon>25){
+                nbWagon = Integer.valueOf(choix);
+            }
             if(nbWagon <= this.nbPionsBateau){
                 if(nbWagon <= this.nbPionsWagonEnReserve){
                     if(nbWagon <= this.score){
@@ -489,14 +491,15 @@ public class Joueur {
                 log(String.format("L'échange est impossible, pas assez de Pions Bateau\n à échanger.",toLog()));
             }
         }
-        if(mode == "PIONS BATEAU"){
+        if(mode.equals("PIONS BATEAU")){
+            int nbBateau = 0;
             List<String> nombreBateauOption = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25");
             choix = choisir(
                     "Entrez dans la zone de texte la quantité à échanger. Attention vous perdrez 1 point de score pour chaque pion échangé.",
                     nombreBateauOption,
                     null,
                     false);
-            int nbBateau = Integer.valueOf(choix);
+            nbBateau = Integer.valueOf(choix);
             if(nbBateau <= this.nbPionsWagon){
                 if(nbBateau <= this.nbPionsBateauEnReserve){
                     if(nbBateau <= this.score){
