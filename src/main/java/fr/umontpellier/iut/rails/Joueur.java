@@ -478,17 +478,11 @@ public class Joueur {
             }
             if(nbWagon <= this.nbPionsBateau){
                 if(nbWagon <= this.nbPionsWagonEnReserve){
-                    if(nbWagon <= this.score){
-                        this.nbPionsWagon+=nbWagon;
-                        this.nbPionsBateau-=nbWagon;
-                        this.nbPionsWagonEnReserve-=nbWagon;
-                        this.nbPionsBateauEnReserve+=nbWagon;
-                        this.score-=nbWagon;
-                        log(String.format("Vous venez d'échanger "+nbWagon+" pions Bateau\n contre "+nbWagon+" pions Wagon.",toLog()));
-                    }
-                    else{
-                        log(String.format("L'échange est impossible, Score trop bas pour\n pouvoir échanger.",toLog()));
-                    }
+                    this.nbPionsWagon+=nbWagon;
+                    this.nbPionsBateau-=nbWagon;
+                    this.nbPionsWagonEnReserve-=nbWagon;
+                    this.nbPionsBateauEnReserve+=nbWagon;
+                    log(String.format("Vous venez d'échanger "+nbWagon+" pions Bateau\n contre "+nbWagon+" pions Wagon.",toLog()));
                 }
                 else{
                     log(String.format("L'échange est impossible, pas assez de Pions Wagon\n en réserve.",toLog()));
@@ -509,17 +503,11 @@ public class Joueur {
             nbBateau = Integer.valueOf(choix);
             if(nbBateau <= this.nbPionsWagon){
                 if(nbBateau <= this.nbPionsBateauEnReserve){
-                    if(nbBateau <= this.score){
-                        this.nbPionsWagon-=nbBateau;
-                        this.nbPionsBateau+=nbBateau;
-                        this.nbPionsWagonEnReserve+=nbBateau;
-                        this.nbPionsBateauEnReserve-=nbBateau;
-                        this.score-=nbBateau;
-                        log(String.format("Vous venez d'échanger "+nbBateau+" pions Bateau\n contre "+nbBateau+" pions Wagon.",toLog()));
-                    }
-                    else{
-                        log(String.format("L'échange est impossible, Score trop bas pour\n pouvoir échanger.",toLog()));
-                    }
+                    this.nbPionsWagon-=nbBateau;
+                    this.nbPionsBateau+=nbBateau;
+                    this.nbPionsWagonEnReserve+=nbBateau;
+                    this.nbPionsBateauEnReserve-=nbBateau;
+                    log(String.format("Vous venez d'échanger "+nbBateau+" pions Bateau\n contre "+nbBateau+" pions Wagon.",toLog()));
                 }
                 else{
                     log(String.format("L'échange est impossible, pas assez de Pions Bateau\n en réserve.",toLog()));
