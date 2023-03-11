@@ -3,6 +3,7 @@ package fr.umontpellier.iut.rails;
 import fr.umontpellier.iut.rails.data.*;
 
 import java.awt.*;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.List;
 
@@ -138,18 +139,28 @@ public class Joueur {
     void jouerTour() {
         String choix;
         boolean aJoue = false;
+        List<CarteTransport> carteVisible = jeu.getCartesTransportVisibles();
+        ArrayList<String> carteVisibleNom = new ArrayList<String>();
 
 
         List<Bouton> boutons = Arrays.asList(
-                new Bouton("Piocher une carte transport"),
                 new Bouton("Échanger wagon","PIONS WAGON"),
                 new Bouton("Échanger bateau","PIONS BATEAU"),
                 new Bouton("Capturer une route"),
                 new Bouton("Construire un port"));
+
+
         List<String> options = new ArrayList<String>();
         options.add("DESTINATION");
         options.add("PIONS WAGON");
         options.add("PIONS BATEAU");
+        options.add("WAGON");
+        options.add("BATEAU");
+        
+        for(CarteTransport c : carteVisible){
+            options.add(c.getNom());
+            carteVisibleNom.add(c.getNom());
+        }
 
 
         do{
@@ -165,8 +176,8 @@ public class Joueur {
             else {
                 log(String.format("%s a choisi %s", toLog(), choix));
 
-                if(choix.equals("Piocher une carte transport")){
-                    aJoue = this.piocherCarteTransport();
+                if(choix.equals("BATEAU") || choix.equals("WAGON") || carteVisibleNom.contains(choix) ){
+                    aJoue = this.piocherCarteTransport(choix);
                 }
                 if(choix.equals("PIONS WAGON") || choix.equals("PIONS BATEAU")) {
                     echangerPion(choix);
@@ -219,25 +230,27 @@ public class Joueur {
      * 
      * @return la carte qui a été piochée (ou null si aucune carte disponible)
      */
-    private boolean piocherCarteTransport(){
+    private boolean piocherCarteTransport(String mode){
         //TODO cette métode ne prend pas en charge les jo
         int nbCartePioche = 0;
-        List<Bouton> boutons = Arrays.asList(
-                new Bouton("Retour"));
-
         String choix;
-
+        
         do{
-            List<String> optionPioche = new ArrayList<String>();
-            optionPioche.add("WAGON");
-            optionPioche.add("BATEAU");
-            for(int i=0; i<jeu.getCartesTransportVisibles().size();i++){
-                optionPioche.add(jeu.getCartesTransportVisibles().get(i).getNom());
+            if(nbCartePioche>0){
+                List<String> optionPioche = new ArrayList<String>();
+                optionPioche.add("WAGON");
+                optionPioche.add("BATEAU");
+                for(int i=0; i<jeu.getCartesTransportVisibles().size();i++){
+                    optionPioche.add(jeu.getCartesTransportVisibles().get(i).getNom());
+                }
+                choix = choisir("Choisissez quel carte piocher", optionPioche, null,true);
             }
-
-            choix = choisir("Choisissez quel carte piocher", optionPioche, boutons, false);
+            else{
+                choix = mode;
+            }
             
-            if(nbCartePioche<2 && !choix.equals("Retour")){
+            
+            if(nbCartePioche<2 && !choix.equals("")){
                 log(String.format("%s %s", toLog(), choix));
                 if(choix.equals("WAGON")){
                     this.cartesTransport.add(this.jeu.piocherCarteWagon());
@@ -271,14 +284,8 @@ public class Joueur {
                 }
                 
             }
-            else if(nbCartePioche==2 && !choix.equals("Retour")){
-                log(String.format("Impossible de piocher %s a déjà assez pioché", toLog()));
-            }
-            else if(nbCartePioche<2 && choix.equals("Retour")){
-                log(String.format("%s Veuillez piocher toutes vos cartes", toLog()));
-            }
 
-        }while(!choix.equals("Retour") || nbCartePioche!=2);
+        }while(!choix.equals("") && nbCartePioche!=2);
 
         boolean aPioche = !(nbCartePioche==0);
         return aPioche;
