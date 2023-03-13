@@ -139,8 +139,8 @@ public class Joueur {
     void jouerTour() {
         String choix;
         boolean aJoue = false;
-        List<CarteTransport> carteVisible = jeu.getCartesTransportVisibles();
         ArrayList<String> carteVisibleNom = new ArrayList<String>();
+        ArrayList<String> routeNom = new ArrayList<String>();
 
 
         List<Bouton> boutons = Arrays.asList(
@@ -161,9 +161,13 @@ public class Joueur {
             options.add("BATEAU");
         }
         
-        for(CarteTransport c : carteVisible){
+        for(CarteTransport c : jeu.getCartesTransportVisibles()){
             options.add(c.getNom());
             carteVisibleNom.add(c.getNom());
+        }
+        for(Route r : jeu.getRoutesLibres()){
+            options.add(r.getNom());
+            routeNom.add(r.getNom());
         }
 
 
@@ -191,9 +195,13 @@ public class Joueur {
                     piocherCarteDestination(4,1);
                     aJoue = true;
                 }
-                if(choix.equals("Capturer une route")) {
-                    //TODO (Norman je gère la fougère)
-                    aJoue = prendreRoute();
+                if(routeNom.contains(choix)) {
+                    //TODO
+                    if(peutPrendreRoute(jeu.getRouteFromNom(choix))){
+                        prendreRoute(jeu.getRouteFromNom(choix));
+                        aJoue = true;
+                    }
+                    
                 }
                 if(choix.equals("Construire un port")){
                     //TODO
@@ -373,42 +381,28 @@ public class Joueur {
     /**
      * Gère la prise d'une route par un joueur
      */
-    private boolean prendreRoute(){
+    private void prendreRoute(Route routeChoisie){
         String choix;
-        boolean aPrisRoute = false;
+        int compteur=0;
+        ArrayList<String> options = new ArrayList<String>();
+
+        poserCarteTransportCompatible(routeChoisie);
+        
+        
 
         do{
-            List<String> optionsRoutes = new ArrayList<>();
-            for (Route route : jeu.getRoutesLibres()) {
-                optionsRoutes.add(route.getNom());
+            options.clear();
+            for(CarteTransport c : cartesTransportPosees){
+                options.add(c.getNom());
             }
 
-            choix = choisir("Selectionnez la route dont vous souhaitez prendre possession", optionsRoutes, null, true);
-            log(String.format("%s a choisi la route %s", toLog(), choix));
-            Route routeChoisie = jeu.getRouteFromNom(choix);
+            choix = choisir("Choisissez les cartes que vous souhaitez utiliser", options, null, false);
+
+
+
             
-            if(!peutPrendreRoute(routeChoisie)){
-                List<Bouton> boutons = Arrays.asList(
-                        new Bouton("Retour"),
-                        new Bouton("Oui"));
 
-                choix = choisir("Voulez vous capturer la route " + routeChoisie.toString() + " de couleur "+ routeChoisie.getCouleur() +" ?", null,boutons, false);
-                if(choix.equals("Oui")){
-                    /*TODO le joueur doit choisir quel carte il souhaite defausser (ou automatique selon interface)
-                     *déduction des pions et attribution de la route
-                     *à faire après l'implémentation du début de partie
-                     *attention a créer une méthode dans jeu pour supprimer une route
-                     */
-
-                    aPrisRoute = true;
-                }
-            }
-            else{
-                log(toLog() + " impossible de prendre cette route !");
-            }
-
-        }while(choix != "" && !aPrisRoute);
-        return aPrisRoute;
+        }while(choix!="" );
     }
 
     /**
@@ -417,22 +411,31 @@ public class Joueur {
      */
     private boolean peutPrendreRoute(Route route){
         boolean estPossible = true;
-        if(route.getClass().getName() == "fr.umontpellier.iut.rails.RouteTerrestre"){
+
+        if(route.getClass().getName() == "fr.umontpellier.iut.rails.RoutePaire"){
+            if((route.getLongueur()*2) > nbCombinaisonCarteTransportMax(TypeCarteTransport.WAGON)){
+                estPossible = false;
+                System.out.println(estPossible);
+            }
+        }
+
+        else if(route.getClass().getName() == "fr.umontpellier.iut.rails.RouteTerrestre"){
             if(route.getLongueur()> nbPionsWagon){
                 estPossible = false;
             }
-            else if(route.getCouleur() == Couleur.GRIS && route.getLongueur() > nombreCarteTransport(TypeCarteTransport.WAGON)){
+            else if(route.getCouleur() == Couleur.GRIS && route.getLongueur() > nbCombinaisonCarteTransportMax(TypeCarteTransport.WAGON)){
                 estPossible = false;
             }
             else if(route.getLongueur() > nombreCarteTransportDeCouleur(TypeCarteTransport.WAGON, route.getCouleur())){
                 estPossible = false;
             }
         }
+
         else if(route.getClass().getName() == "fr.umontpellier.iut.rails.RouteMaritime"){
             if(route.getLongueur()> nbPionsBateau){
                 estPossible = false;
             }
-            else if(route.getCouleur() == Couleur.GRIS && route.getLongueur() > nombreCarteTransport(TypeCarteTransport.BATEAU)){
+            else if(route.getCouleur() == Couleur.GRIS && route.getLongueur() > nbCombinaisonCarteTransportMax(TypeCarteTransport.BATEAU)){
                 estPossible = false;
             }
             else if(route.getLongueur() > nombreCarteTransportDeCouleur(TypeCarteTransport.BATEAU, route.getCouleur())){
@@ -442,18 +445,69 @@ public class Joueur {
         return estPossible;
     }
 
-    private int nombreCarteTransport(TypeCarteTransport type){
-        int compteur = 0;
-        for(int i = 0; i<cartesTransport.size();i++){
-            if(cartesTransport.get(i).getType() == type || cartesTransport.get(i).getType() == TypeCarteTransport.JOKER){
-                compteur++;
-                if(cartesTransport.get(i).estDouble()){
-                    compteur++;
+    private int nbCombinaisonCarteTransportMax(TypeCarteTransport type){
+        List<Integer> listeCombinaison = Arrays.asList(nombreCarteTransportDeCouleur(type, Couleur.BLANC),nombreCarteTransportDeCouleur(type, Couleur.JAUNE),nombreCarteTransportDeCouleur(type, Couleur.NOIR), nombreCarteTransportDeCouleur(type, Couleur.ROUGE), nombreCarteTransportDeCouleur(type, Couleur.VERT),nombreCarteTransportDeCouleur(type, Couleur.VIOLET));
+        System.out.println(Collections.max(listeCombinaison));
+        return Collections.max(listeCombinaison);
+    }
+
+    private ArrayList<Couleur> combinaisonCouleurCarteTransport(TypeCarteTransport type, int min){
+        List<Couleur> listeCouleur = Arrays.asList(Couleur.BLANC,Couleur.JAUNE,Couleur.NOIR,Couleur.ROUGE,Couleur.VERT, Couleur.VIOLET);
+        List<Integer> listeCombinaison = Arrays.asList(nombreCarteTransportDeCouleur(type, Couleur.BLANC),nombreCarteTransportDeCouleur(type, Couleur.JAUNE),nombreCarteTransportDeCouleur(type, Couleur.NOIR), nombreCarteTransportDeCouleur(type, Couleur.ROUGE), nombreCarteTransportDeCouleur(type, Couleur.VERT),nombreCarteTransportDeCouleur(type, Couleur.VIOLET));
+        ArrayList<Couleur> couleursValides = new ArrayList<Couleur>();
+        for(int i=0; i<listeCouleur.size(); i++){
+            if(listeCombinaison.get(i)>=min){
+                couleursValides.add(listeCouleur.get(i));
+            }
+        }
+        return couleursValides;
+    }
+
+    private void poserCarteTransportCompatible(Route route){
+        ArrayList<Couleur> couleurValide;
+
+        if(route.getClass().getName() == "fr.umontpellier.iut.rails.RouteTerrestre" || route.getClass().getName() == "fr.umontpellier.iut.rails.RoutePaire"){
+            if(route.getCouleur() == Couleur.GRIS){
+                couleurValide = combinaisonCouleurCarteTransport(TypeCarteTransport.WAGON, route.getLongueur());
+                for(CarteTransport c : cartesTransport){
+                    if(c.getType() == TypeCarteTransport.WAGON && couleurValide.contains(c.getCouleur())){
+                        cartesTransportPosees.add(c);
+                        cartesTransport.remove(c);
+                    }
+                }
+            }
+            else{
+                for(CarteTransport c : cartesTransport){
+                    if(c.getType() == TypeCarteTransport.WAGON && c.getCouleur() == route.getCouleur()){
+                        cartesTransportPosees.add(c);
+                        cartesTransport.remove(c);
+                    }
+                }
+            }
+            
+        }
+
+        else if(route.getClass().getName() == "fr.umontpellier.iut.rails.RouteMaritime"){
+            if(route.getCouleur() == Couleur.GRIS){
+                couleurValide = combinaisonCouleurCarteTransport(TypeCarteTransport.BATEAU, route.getLongueur());
+                for(CarteTransport c : cartesTransport){
+                    if(c.getType() == TypeCarteTransport.BATEAU && couleurValide.contains(c.getCouleur())){
+                        cartesTransportPosees.add(c);
+                        cartesTransport.remove(c);
+                    }
+                }
+            }
+            else{
+                for(CarteTransport c : cartesTransport){
+                    if(c.getType() == TypeCarteTransport.BATEAU && c.getCouleur() == route.getCouleur()){
+                        cartesTransportPosees.add(c);
+                        cartesTransport.remove(c);
+                    }
                 }
             }
         }
-        return compteur;
     }
+
 
     private int nombreCarteTransportDeCouleur(TypeCarteTransport type ,Couleur couleur){
         int compteur = 0;
