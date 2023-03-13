@@ -154,8 +154,12 @@ public class Joueur {
         options.add("DESTINATION");
         options.add("PIONS WAGON");
         options.add("PIONS BATEAU");
-        options.add("WAGON");
-        options.add("BATEAU");
+        if(!jeu.piocheWagonEstVide()){
+            options.add("WAGON");
+        }
+        if(!jeu.piocheBateauEstVide()){
+            options.add("BATEAU");
+        }
         
         for(CarteTransport c : carteVisible){
             options.add(c.getNom());
@@ -234,12 +238,15 @@ public class Joueur {
         //TODO cette métode ne prend pas en charge les jo
         int nbCartePioche = 0;
         String choix;
-        
         do{
             if(nbCartePioche>0){
                 List<String> optionPioche = new ArrayList<String>();
-                optionPioche.add("WAGON");
-                optionPioche.add("BATEAU");
+                if(!jeu.piocheWagonEstVide()){
+                    optionPioche.add("WAGON");
+                }
+                if(!jeu.piocheBateauEstVide()){
+                    optionPioche.add("BATEAU");
+                }   
                 for(int i=0; i<jeu.getCartesTransportVisibles().size();i++){
                     optionPioche.add(jeu.getCartesTransportVisibles().get(i).getNom());
                 }
@@ -261,7 +268,6 @@ public class Joueur {
                     nbCartePioche++;
                 }
                 else{
-                    //TODO detection lorsqu'il y a 3 joker en carte visible afin de reset;
                     CarteTransport carte = jeu.getCarteTransportVisiblesFromNom(choix);
                     if(carte.getType()==TypeCarteTransport.JOKER){
                         if(nbCartePioche == 0){
@@ -277,6 +283,13 @@ public class Joueur {
                             this.cartesTransport.add(carte);
                             nbCartePioche++;
                             jeu.removeCarteTransportVisibles(carte);
+                            remplacerCarteTransportVisible();
+                        }
+                    }
+
+                    if(!jeu.cartesTransportVisiblesSontValide()){
+                        jeu.clearCartesTransportVisibles();
+                        for(int i=0; i<6;i++){
                             remplacerCarteTransportVisible();
                         }
                     }
@@ -628,10 +641,12 @@ public class Joueur {
     boolean destinationEstComplete(Destination d) {
         // Cette méthode pour l'instant renvoie false pour que le jeu puisse s'exécuter.
         // À vous de modifier le corps de cette fonction pour qu'elle retourne la valeur attendue.
+        //TODO
         return false;
     }
 
     public int calculerScoreFinal() {
+        //TODO
         throw new RuntimeException("Méthode pas encore implémentée !");
     }
 
