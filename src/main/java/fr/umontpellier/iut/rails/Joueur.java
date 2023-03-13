@@ -142,6 +142,11 @@ public class Joueur {
         ArrayList<String> carteVisibleNom = new ArrayList<String>();
         ArrayList<String> routeNom = new ArrayList<String>();
 
+        List<Ville> portLibre = jeu.getPortsLibres();
+        ArrayList<String> portLibreNom = new ArrayList<String>();
+
+
+
 
         List<Bouton> boutons = Arrays.asList(
                 new Bouton("Échanger wagon","PIONS WAGON"),
@@ -160,6 +165,7 @@ public class Joueur {
         if(!jeu.piocheBateauEstVide()){
             options.add("BATEAU");
         }
+        options.add("PORT");
         
         for(CarteTransport c : jeu.getCartesTransportVisibles()){
             options.add(c.getNom());
@@ -168,6 +174,11 @@ public class Joueur {
         for(Route r : jeu.getRoutesLibres()){
             options.add(r.getNom());
             routeNom.add(r.getNom());
+        }
+
+        for(Ville v : portLibre){
+            options.add(v.nom());
+            portLibreNom.add(v.nom());
         }
 
 
@@ -203,8 +214,9 @@ public class Joueur {
                     }
                     
                 }
-                if(choix.equals("Construire un port")){
-                    //TODO
+                if(choix.equals("PORT")){
+                    capturerPort(choix);
+                    aJoue = true;
                 }
             }
         }while(!aJoue);
@@ -254,7 +266,7 @@ public class Joueur {
                 }
                 if(!jeu.piocheBateauEstVide()){
                     optionPioche.add("BATEAU");
-                }   
+                }
                 for(int i=0; i<jeu.getCartesTransportVisibles().size();i++){
                     optionPioche.add(jeu.getCartesTransportVisibles().get(i).getNom());
                 }
@@ -301,7 +313,7 @@ public class Joueur {
                             remplacerCarteTransportVisible();
                         }
                     }
-                    
+
                 }
                 
             }
@@ -523,13 +535,6 @@ public class Joueur {
     }
 
     private void echangerPion(String mode){
-        /*
-        List<Bouton> boutons = Arrays.asList(
-                new Bouton("Échanger un pion Bateau contre un pion Wagon", "Échange un pion Bateau contre un pion Wagon"),
-                new Bouton("Échanger un pion Wagon contre un pion Bateau", "Échange un pion Wagon contre un pion Bateau"),
-                new Bouton("Retour"));
-        List<String> choixWagon = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25");
-        */
         String choix;
         if(mode.equals("PIONS WAGON")){
             int nbWagon = 0;
@@ -586,14 +591,36 @@ public class Joueur {
                 log(String.format("L'échange est impossible, pas assez de Pions Bateau\n à échanger.",toLog()));
             }
         }
+    }
 
 
-        /*
+    private void capturerPort(String port){
+        //capturer le port qui est donné en paramètre et qui est dans la liste des ports, si il est déjà dans la liste c'est qu'il est capturable
+        List<Ville> portLibre = jeu.getPortsLibres();
+        if(routeRelieAPort(port) != null){
+            if(routeRelieAPort(port).getLongueur() <= nombreCarteTransport(TypeCarteTransport.BATEAU)){
+                this.ports.add(portLibre.get(ports.indexOf(port)));
+                log(String.format("Vous venez de capturer le port de "+port+".",toLog()));
+            }
+            else{
+                log(String.format("Vous n'avez pas assez de cartes bateau pour capturer le port de "+port+".",toLog()));
+            }
+        }
+        else{
+            log(String.format("Vous n'avez pas de route maritime qui relie le port de "+port+".",toLog()));
+        }
 
-        do{
 
-        }while(mode!="Retour");
-         */
+    }
+
+    private Route routeRelieAPort(String port){
+        //vérifie si le joueur possède une route terrestre ou maritime qui est relié au port
+        for(Route r : this.routes){
+            if(r.getVille1().equals(port) || r.getVille2().equals(port)){
+                return r;
+            }
+        }
+        return null;
     }
 
 
