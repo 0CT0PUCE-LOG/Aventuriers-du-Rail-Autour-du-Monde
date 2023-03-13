@@ -28,6 +28,12 @@ public class PilesCartesTransport {
         if(this.pilePioche.size()!=0){
             return this.pilePioche.remove(0);
         }
+        else if(this.pileDefausse.size()!=0){
+            Collections.shuffle(pileDefausse);
+            this.pilePioche.addAll(pileDefausse);
+            pileDefausse.clear();
+            return piocher();
+        }
         else{
             return null;
         }

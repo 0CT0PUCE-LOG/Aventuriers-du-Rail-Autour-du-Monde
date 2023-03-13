@@ -160,6 +160,29 @@ public class Jeu implements Runnable {
         return cartesTransportVisibles.remove(carte);
     }
 
+    public boolean cartesTransportVisiblesSontValide(){
+        int nbJoker = 0;
+        for(CarteTransport c : cartesTransportVisibles){
+            if(c.getType()==TypeCarteTransport.JOKER){
+                nbJoker++;
+            }
+        }
+        return nbJoker<3;
+    }
+
+    public void clearCartesTransportVisibles(){
+        for(CarteTransport c : cartesTransportVisibles){
+            if(c.getType()==TypeCarteTransport.JOKER || c.getType()==TypeCarteTransport.WAGON){
+                pilesDeCartesWagon.defausser(c);
+                cartesTransportVisibles.remove(c);
+            }
+            else if(c.getType() == TypeCarteTransport.BATEAU){
+                pilesDeCartesBateau.defausser(c);
+                cartesTransportVisibles.remove(c);
+            }
+        }
+    }
+
     /**
      * Exécute la partie
      *
