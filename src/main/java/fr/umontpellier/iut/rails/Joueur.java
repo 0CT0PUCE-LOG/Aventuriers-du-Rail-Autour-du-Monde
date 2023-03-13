@@ -495,6 +495,7 @@ public class Joueur {
                     this.nbPionsBateau-=nbWagon;
                     this.nbPionsWagonEnReserve-=nbWagon;
                     this.nbPionsBateauEnReserve+=nbWagon;
+                    this.score-=nbWagon;
                     log(String.format("Vous venez d'échanger "+nbWagon+" pions Bateau\n contre "+nbWagon+" pions Wagon.",toLog()));
                 }
                 else{
@@ -520,6 +521,7 @@ public class Joueur {
                     this.nbPionsBateau+=nbBateau;
                     this.nbPionsWagonEnReserve+=nbBateau;
                     this.nbPionsBateauEnReserve-=nbBateau;
+                    this.score-=nbBateau;
                     log(String.format("Vous venez d'échanger "+nbBateau+" pions Bateau\n contre "+nbBateau+" pions Wagon.",toLog()));
                 }
                 else{
