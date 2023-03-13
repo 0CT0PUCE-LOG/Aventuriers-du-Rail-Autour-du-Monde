@@ -463,6 +463,20 @@ public class Joueur {
         return Collections.max(listeCombinaison);
     }
 
+    private int nombreCarteTransport(TypeCarteTransport type){
+        int compteur = 0;
+        for(int i = 0; i<cartesTransport.size();i++){
+            if(cartesTransport.get(i).getType() == type || cartesTransport.get(i).getType() == TypeCarteTransport.JOKER){
+                compteur++;
+                if(cartesTransport.get(i).estDouble()){
+                    compteur++;
+                }
+            }
+        }
+        return compteur;
+    }
+
+
     private ArrayList<Couleur> combinaisonCouleurCarteTransport(TypeCarteTransport type, int min){
         List<Couleur> listeCouleur = Arrays.asList(Couleur.BLANC,Couleur.JAUNE,Couleur.NOIR,Couleur.ROUGE,Couleur.VERT, Couleur.VIOLET);
         List<Integer> listeCombinaison = Arrays.asList(nombreCarteTransportDeCouleur(type, Couleur.BLANC),nombreCarteTransportDeCouleur(type, Couleur.JAUNE),nombreCarteTransportDeCouleur(type, Couleur.NOIR), nombreCarteTransportDeCouleur(type, Couleur.ROUGE), nombreCarteTransportDeCouleur(type, Couleur.VERT),nombreCarteTransportDeCouleur(type, Couleur.VIOLET));
