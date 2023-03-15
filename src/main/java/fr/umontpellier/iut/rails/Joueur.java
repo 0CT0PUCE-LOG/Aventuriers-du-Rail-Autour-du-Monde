@@ -150,8 +150,7 @@ public class Joueur {
 
         List<Bouton> boutons = Arrays.asList(
                 new Bouton("Échanger wagon","PIONS WAGON"),
-                new Bouton("Échanger bateau","PIONS BATEAU"),
-                new Bouton("Construire un port"));
+                new Bouton("Échanger bateau","PIONS BATEAU"));
 
 
         List<String> options = new ArrayList<String>();
@@ -164,7 +163,6 @@ public class Joueur {
         if(!jeu.piocheBateauEstVide()){
             options.add("BATEAU");
         }
-        options.add("PORT");
         
         for(CarteTransport c : jeu.getCartesTransportVisibles()){
             options.add(c.getNom());
@@ -214,7 +212,7 @@ public class Joueur {
                     }
                     
                 }
-                if(choix.equals("PORT")){//Condition d'entrée pas bonne il faut mettre un truc du genre portNom.contains(choix)
+                if(portLibreNom.contains(choix)){//Condition d'entrée pas bonne il faut mettre un truc du genre portNom.contains(choix)
                     capturerPort(choix);
                     aJoue = true;
                 }
@@ -250,7 +248,7 @@ public class Joueur {
     /**
      * Gère la pioche de carte Transport par le joueur
      * 
-     * @param nbCartePioche nombre de carte transport déja pioché
+     * @param //nbCartePioche nombre de carte transport déja pioché
      * 
      * @return la carte qui a été piochée (ou null si aucune carte disponible)
      */
