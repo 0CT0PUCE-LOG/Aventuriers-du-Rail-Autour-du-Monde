@@ -9,6 +9,8 @@ import java.util.List;
 
 import javax.print.DocFlavor.STRING;
 
+import com.fasterxml.jackson.databind.AnnotationIntrospector.ReferenceProperty.Type;
+
 public class Joueur {
     public enum CouleurJouer {
         JAUNE, ROUGE, BLEU, VERT, ROSE;
@@ -397,6 +399,8 @@ public class Joueur {
         int compteur=0;
         ArrayList<String> options = new ArrayList<String>();
         CarteTransport carteChoisie;
+        ArrayList<Couleur> couleurChoisis = new ArrayList<>();
+        int nbJoker = nombreCarteTransport(TypeCarteTransport.JOKER);
 
         //double le nombre de matériaux nécessaire si la route est double
         int nbMateriauNecessaire = routeChoisie.getLongueur();
@@ -420,14 +424,40 @@ public class Joueur {
             
 
             //retirer toutes les cartes non valide pour un choix
-            for(CarteTransport c : cartesTransportPosees){ // TODO faire special pour route double
-                if(carteChoisie.getType()!= TypeCarteTransport.JOKER){
-                    if(carteChoisie.getCouleur() != c.getCouleur() && c.getType()!=TypeCarteTransport.JOKER){
-                        cartesTransport.add(c);
+            if(!(routeChoisie instanceof RoutePaire)){
+                for(CarteTransport c : cartesTransportPosees){ // TODO faire special pour route double
+                    if(carteChoisie.getType()!= TypeCarteTransport.JOKER){
+                        if(carteChoisie.getCouleur() != c.getCouleur() && c.getType()!=TypeCarteTransport.JOKER){
+                            cartesTransport.add(c);
+                        }
                     }
                 }
+                cartesTransportPosees.removeAll(cartesTransport);
             }
-            cartesTransportPosees.removeAll(cartesTransport);
+            else{
+                
+                if((!couleurChoisis.contains(carteChoisie.getCouleur())) && carteChoisie.getType() != TypeCarteTransport.JOKER){
+                    couleurChoisis.add(carteChoisie.getCouleur());
+                }
+
+                if(carteChoisie.getType() != TypeCarteTransport.JOKER){
+                    for(CarteTransport c : cartesTransportPosees){ 
+                        if(!couleurChoisis.contains(carteChoisie.getCouleur()) && c.getType()!=TypeCarteTransport.JOKER && couleurChoisis.size()< routeChoisie.getLongueur()){
+                            cartesTransport.add(c); //TODO supprimer les carte de bonne couleur mais ne pouvant pas faire une route de plus par manque de matériaux 
+                        }
+                    }
+                }
+                else{
+                    nbJoker--;
+                    for(CarteTransport c : cartesTransportPosees){
+                        if(2 > nbJoker + nombreCarteTransportPoseesDeCouleurSansJoker(TypeCarteTransport.WAGON, c.getCouleur()) && !couleurChoisis.contains(c.getCouleur())){
+                            cartesTransport.add(c);
+                        }
+                    }
+                }
+                cartesTransportPosees.removeAll(cartesTransport);
+            }
+            
 
             //defausser la carte choisie
             if(carteChoisie.getType() == TypeCarteTransport.WAGON || carteChoisie.getType() == TypeCarteTransport.JOKER){
@@ -523,11 +553,16 @@ public class Joueur {
     }
 
     private int nbCombinaisonCarteTransportMin(TypeCarteTransport type,int min){//TODO vérifier qu'un joker ne compte pas dans plusieurs
-        List<Integer> listeCombinaison = Arrays.asList(nombreCarteTransportDeCouleur(type, Couleur.BLANC),nombreCarteTransportDeCouleur(type, Couleur.JAUNE),nombreCarteTransportDeCouleur(type, Couleur.NOIR), nombreCarteTransportDeCouleur(type, Couleur.ROUGE), nombreCarteTransportDeCouleur(type, Couleur.VERT),nombreCarteTransportDeCouleur(type, Couleur.VIOLET));
+        List<Integer> listeCombinaison = Arrays.asList(nombreCarteTransportDeCouleurSansJoker(type, Couleur.BLANC),nombreCarteTransportDeCouleurSansJoker(type, Couleur.JAUNE),nombreCarteTransportDeCouleurSansJoker(type, Couleur.NOIR), nombreCarteTransportDeCouleurSansJoker(type, Couleur.ROUGE), nombreCarteTransportDeCouleurSansJoker(type, Couleur.VERT),nombreCarteTransportDeCouleurSansJoker(type, Couleur.VIOLET));
         int compteur=0;
+        int nbJoker = nombreCarteTransport(TypeCarteTransport.JOKER);
         for(int i : listeCombinaison){
             if(i>=min){
-                compteur += i%min;
+                compteur += (int) (i/min);
+            }
+            else if((i+nbJoker)>=min){
+                compteur ++;
+                nbJoker-= min-i;
             }
         }
         return compteur;
@@ -567,7 +602,7 @@ public class Joueur {
     private void poserCarteTransportCompatible(Route route){ //TODO route paire à implémenter
         ArrayList<Couleur> couleurValide;
 
-        if(route.getClass().getName() == "fr.umontpellier.iut.rails.RouteTerrestre" || route.getClass().getName() == "fr.umontpellier.iut.rails.RoutePaire"){
+        if(route.getClass().getName() == "fr.umontpellier.iut.rails.RouteTerrestre"){
             if(route.getCouleur() == Couleur.GRIS){
                 couleurValide = combinaisonCouleurCarteTransport(TypeCarteTransport.WAGON, route.getLongueur());
                 for(CarteTransport c : cartesTransport){
@@ -619,6 +654,19 @@ public class Joueur {
                 cartesTransport.removeAll(cartesTransportPosees);
             }
         }
+        else if(route.getClass().getName() == "fr.umontpellier.iut.rails.RoutePaire"){
+            int nbJoker = nombreCarteTransport(TypeCarteTransport.JOKER);
+            couleurValide = combinaisonCouleurCarteTransport(TypeCarteTransport.WAGON, route.getLongueur()-nbJoker);
+            for(CarteTransport c : cartesTransport){
+                if(c.getType() == TypeCarteTransport.WAGON && couleurValide.contains(c.getCouleur())){
+                    cartesTransportPosees.add(c);
+                }
+                else if(c.getType()==TypeCarteTransport.JOKER){
+                    cartesTransportPosees.add(c);
+                }
+            }
+            cartesTransport.removeAll(cartesTransportPosees);    
+        }
     }
 
 
@@ -628,6 +676,32 @@ public class Joueur {
             if(((cartesTransport.get(i).getCouleur() == couleur && cartesTransport.get(i).getType() == type)) || cartesTransport.get(i).getType() == TypeCarteTransport.JOKER){
                 compteur++;
                 if(cartesTransport.get(i).estDouble()){
+                    compteur++;
+                }
+            }
+        }
+        return compteur;
+    }
+
+    private int nombreCarteTransportDeCouleurSansJoker(TypeCarteTransport type ,Couleur couleur){
+        int compteur = 0;
+        for(int i = 0; i<cartesTransport.size();i++){
+            if((cartesTransport.get(i).getCouleur() == couleur && cartesTransport.get(i).getType() == type)){
+                compteur++;
+                if(cartesTransport.get(i).estDouble()){
+                    compteur++;
+                }
+            }
+        }
+        return compteur;
+    }
+
+    private int nombreCarteTransportPoseesDeCouleurSansJoker(TypeCarteTransport type ,Couleur couleur){
+        int compteur = 0;
+        for(int i = 0; i<cartesTransportPosees.size();i++){
+            if((cartesTransportPosees.get(i).getCouleur() == couleur && cartesTransportPosees.get(i).getType() == type)){
+                compteur++;
+                if(cartesTransportPosees.get(i).estDouble()){
                     compteur++;
                 }
             }
