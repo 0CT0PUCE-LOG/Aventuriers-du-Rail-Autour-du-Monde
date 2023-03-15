@@ -522,12 +522,12 @@ public class Joueur {
         return estPossible;
     }
 
-    private int nbCombinaisonCarteTransportMin(TypeCarteTransport type,int min){
+    private int nbCombinaisonCarteTransportMin(TypeCarteTransport type,int min){//TODO vérifier qu'un joker ne compte pas dans plusieurs
         List<Integer> listeCombinaison = Arrays.asList(nombreCarteTransportDeCouleur(type, Couleur.BLANC),nombreCarteTransportDeCouleur(type, Couleur.JAUNE),nombreCarteTransportDeCouleur(type, Couleur.NOIR), nombreCarteTransportDeCouleur(type, Couleur.ROUGE), nombreCarteTransportDeCouleur(type, Couleur.VERT),nombreCarteTransportDeCouleur(type, Couleur.VIOLET));
         int compteur=0;
         for(int i : listeCombinaison){
             if(i>=min){
-                compteur++;
+                compteur += i%min;
             }
         }
         return compteur;
