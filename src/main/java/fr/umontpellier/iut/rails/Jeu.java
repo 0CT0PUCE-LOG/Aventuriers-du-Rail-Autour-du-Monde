@@ -125,6 +125,10 @@ public class Jeu implements Runnable {
         return new ArrayList<>(routesLibres);
     }
 
+    public boolean removeRoutesLibre(Route r){
+        return routesLibres.remove(r);
+    }
+
     /**
      * Renvoie une route se trouvant dans la liste routesLibres
      * @param nom Le nom d'une route
@@ -224,6 +228,10 @@ public class Jeu implements Runnable {
         return pilesDeCartesWagon.piocher();
     }
 
+    public void defausserWagon(CarteTransport c){
+        pilesDeCartesWagon.defausser(c);
+    }
+
     public boolean piocheWagonEstVide() {
         return pilesDeCartesWagon.estVide();
     }
@@ -235,6 +243,10 @@ public class Jeu implements Runnable {
      */
     public CarteTransport piocherCarteBateau() {
         return pilesDeCartesBateau.piocher();
+    }
+
+    public void defausserBateau(CarteTransport c){
+        pilesDeCartesBateau.defausser(c);
     }
 
     public boolean piocheBateauEstVide() {
