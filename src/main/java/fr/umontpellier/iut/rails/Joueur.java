@@ -399,8 +399,10 @@ public class Joueur {
         int compteur=0;
         ArrayList<String> options = new ArrayList<String>();
         CarteTransport carteChoisie;
-        ArrayList<Couleur> couleurChoisis = new ArrayList<>();
-        int nbJoker = nombreCarteTransport(TypeCarteTransport.JOKER);
+        int nbJokerDispo = nombreCarteTransport(TypeCarteTransport.JOKER);
+        ArrayList<RouteTerrestre> sousRoutes= new ArrayList<>();
+        Map<RouteTerrestre, Integer> nbMateriauxParRoute = new HashMap<RouteTerrestre, Integer>();
+
 
         //double le nombre de matériaux nécessaire si la route est double
         int nbMateriauNecessaire = routeChoisie.getLongueur();
@@ -434,29 +436,44 @@ public class Joueur {
                 }
                 cartesTransportPosees.removeAll(cartesTransport);
             }
-            else{
+            else{ // Si la routeChoisie est Paire
                 
-                if((!couleurChoisis.contains(carteChoisie.getCouleur())) && carteChoisie.getType() != TypeCarteTransport.JOKER){
-                    couleurChoisis.add(carteChoisie.getCouleur());
-                }
-
-                if(carteChoisie.getType() != TypeCarteTransport.JOKER){
-                    for(CarteTransport c : cartesTransportPosees){ 
-                        if(!couleurChoisis.contains(carteChoisie.getCouleur()) && c.getType()!=TypeCarteTransport.JOKER && couleurChoisis.size()< routeChoisie.getLongueur()){
-                            cartesTransport.add(c); //TODO supprimer les carte de bonne couleur mais ne pouvant pas faire une route de plus par manque de matériaux 
+            //-----------------------------Attribution de la carte de transport à une sous route-----------------------------
+                if(indexOfRouteDeCouleurVide(sousRoutes, nbMateriauxParRoute,carteChoisie.getCouleur()) == -1){
+                    if(carteChoisie.getType()!=TypeCarteTransport.JOKER){
+                        sousRoutes.add(new RouteTerrestre(null, null, carteChoisie.getCouleur(),2));
+                        nbMateriauxParRoute.put(sousRoutes.get(sousRoutes.size()-1), 1);
+                        if(nombreCarteTransportPoseesDeCouleurSansJoker(TypeCarteTransport.WAGON, sousRoutes.get(sousRoutes.size()-1).getCouleur()) == 0){
+                            nbJokerDispo--;
                         }
                     }
                 }
                 else{
-                    nbJoker--;
-                    for(CarteTransport c : cartesTransportPosees){
-                        if(2 > nbJoker + nombreCarteTransportPoseesDeCouleurSansJoker(TypeCarteTransport.WAGON, c.getCouleur()) && !couleurChoisis.contains(c.getCouleur())){
+                    int indiceRouteVide = indexOfRouteDeCouleurVide(sousRoutes, nbMateriauxParRoute,carteChoisie.getCouleur());
+                    nbMateriauxParRoute.put(sousRoutes.get(indiceRouteVide), nbMateriauxParRoute.get(sousRoutes.get(indiceRouteVide)) + 1);
+                }
+
+            //--------------------------------------------------------------------------------------------------------------------
+            //--------------------------------------Retirer les cartes non compatible---------------------------------------------
+                ArrayList<Couleur> couleursSousRoutesVides = getCouleurFromSousRoutesVide(sousRoutes,nbMateriauxParRoute);
+
+                for(CarteTransport c : cartesTransportPosees){
+                    if(c.getType() != TypeCarteTransport.JOKER){ //un joker est toujours compatible
+                        if(sousRoutes.size()==routeChoisie.getLongueur() && !couleursSousRoutesVides.contains(c.getCouleur())){
                             cartesTransport.add(c);
+                        }
+                        else if(!couleursSousRoutesVides.contains(c.getCouleur()) && (nombreCarteTransportPoseesDeCouleurSansJoker(TypeCarteTransport.WAGON, c.getCouleur()) + nbJokerDispo) < 2 ){
+                                cartesTransport.add(c);
                         }
                     }
                 }
+
                 cartesTransportPosees.removeAll(cartesTransport);
+
+            //--------------------------------------------------------------------------------------------------------------------
+            //-------------------------------Attribution des Jokers en Attente en Fin---------------------------------------------    
             }
+
             
 
             //defausser la carte choisie
@@ -489,6 +506,40 @@ public class Joueur {
         //attribution du score
         score+= routeChoisie.getScore();
 
+    }
+
+    private static int indexOfRouteDeCouleurVide(ArrayList<RouteTerrestre> sousRoutes, Map<RouteTerrestre, Integer>sousRouteQuantite,Couleur coul){
+        if(sousRoutes.size()!=0){
+            for(Route r : sousRoutes){
+                if(r.getCouleur() == coul && sousRouteQuantite.get(r) < r.getLongueur()){
+                    return sousRoutes.indexOf(r);
+                }
+            }
+        }
+        
+        return -1;
+    }
+
+    private static boolean contientRouteVide(ArrayList<RouteTerrestre> sousRoutes, Map<RouteTerrestre, Integer>sousRouteQuantite){
+        if(sousRoutes.size()!=0){
+            for(Route r : sousRoutes){
+                if(sousRouteQuantite.get(r) < r.getLongueur()){
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+
+    private static ArrayList<Couleur> getCouleurFromSousRoutesVide(ArrayList<RouteTerrestre> sousRoutes, Map<RouteTerrestre, Integer>sousRouteQuantite){
+        ArrayList<Couleur> couleurs = new ArrayList<Couleur>();
+        for(RouteTerrestre r : sousRoutes){
+            if(!couleurs.contains(r.getCouleur()) && sousRouteQuantite.get(r)<r.getLongueur()){
+                couleurs.add(r.getCouleur());
+            }
+        }
+        return couleurs;
     }
 
     private CarteTransport getCarteTransportPoseFromNom(String nom){
@@ -656,7 +707,7 @@ public class Joueur {
         }
         else if(route.getClass().getName() == "fr.umontpellier.iut.rails.RoutePaire"){
             int nbJoker = nombreCarteTransport(TypeCarteTransport.JOKER);
-            couleurValide = combinaisonCouleurCarteTransport(TypeCarteTransport.WAGON, route.getLongueur()-nbJoker);
+            couleurValide = combinaisonCouleurCarteTransport(TypeCarteTransport.WAGON, 2-nbJoker);
             for(CarteTransport c : cartesTransport){
                 if(c.getType() == TypeCarteTransport.WAGON && couleurValide.contains(c.getCouleur())){
                     cartesTransportPosees.add(c);
