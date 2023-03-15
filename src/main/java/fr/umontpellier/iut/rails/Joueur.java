@@ -422,7 +422,7 @@ public class Joueur {
             
 
             //retirer toutes les cartes non valide pour un choix
-            for(CarteTransport c : cartesTransportPosees){
+            for(CarteTransport c : cartesTransportPosees){ // TODO faire special pour route double
                 if(carteChoisie.getType()!= TypeCarteTransport.JOKER){
                     if(carteChoisie.getCouleur() != c.getCouleur() && c.getType()!=TypeCarteTransport.JOKER){
                         cartesTransport.add(c);
@@ -493,7 +493,7 @@ public class Joueur {
             if(route.getLongueur()> nbPionsWagon){
                 estPossible = false;
             }
-            else if((route.getLongueur()*2) > nbCombinaisonCarteTransportMax(TypeCarteTransport.WAGON)){
+            else if(route.getLongueur() > nbCombinaisonCarteTransportMin(TypeCarteTransport.WAGON,2)){
                 estPossible = false;
             }
         }
@@ -505,7 +505,7 @@ public class Joueur {
             else if(route.getCouleur() == Couleur.GRIS && route.getLongueur() > nbCombinaisonCarteTransportMax(TypeCarteTransport.WAGON)){
                 estPossible = false;
             }
-            else if(route.getLongueur() > nombreCarteTransportDeCouleur(TypeCarteTransport.WAGON, route.getCouleur())){
+            else if(route.getCouleur() != Couleur.GRIS && route.getLongueur() > nombreCarteTransportDeCouleur(TypeCarteTransport.WAGON, route.getCouleur())){
                 estPossible = false;
             }
         }
@@ -517,16 +517,26 @@ public class Joueur {
             else if(route.getCouleur() == Couleur.GRIS && route.getLongueur() > nbCombinaisonCarteTransportMax(TypeCarteTransport.BATEAU)){
                 estPossible = false;
             }
-            else if(route.getLongueur() > nombreCarteTransportDeCouleur(TypeCarteTransport.BATEAU, route.getCouleur())){
+            else if(route.getCouleur() != Couleur.GRIS && route.getLongueur() > nombreCarteTransportDeCouleur(TypeCarteTransport.BATEAU, route.getCouleur())){
                 estPossible = false;
             }
         }
         return estPossible;
     }
 
+    private int nbCombinaisonCarteTransportMin(TypeCarteTransport type,int min){
+        List<Integer> listeCombinaison = Arrays.asList(nombreCarteTransportDeCouleur(type, Couleur.BLANC),nombreCarteTransportDeCouleur(type, Couleur.JAUNE),nombreCarteTransportDeCouleur(type, Couleur.NOIR), nombreCarteTransportDeCouleur(type, Couleur.ROUGE), nombreCarteTransportDeCouleur(type, Couleur.VERT),nombreCarteTransportDeCouleur(type, Couleur.VIOLET));
+        int compteur=0;
+        for(int i : listeCombinaison){
+            if(i>=min){
+                compteur++;
+            }
+        }
+        return compteur;
+    }
+
     private int nbCombinaisonCarteTransportMax(TypeCarteTransport type){
         List<Integer> listeCombinaison = Arrays.asList(nombreCarteTransportDeCouleur(type, Couleur.BLANC),nombreCarteTransportDeCouleur(type, Couleur.JAUNE),nombreCarteTransportDeCouleur(type, Couleur.NOIR), nombreCarteTransportDeCouleur(type, Couleur.ROUGE), nombreCarteTransportDeCouleur(type, Couleur.VERT),nombreCarteTransportDeCouleur(type, Couleur.VIOLET));
-        System.out.println(Collections.max(listeCombinaison));
         return Collections.max(listeCombinaison);
     }
 
@@ -556,7 +566,7 @@ public class Joueur {
         return couleursValides;
     }
 
-    private void poserCarteTransportCompatible(Route route){
+    private void poserCarteTransportCompatible(Route route){ //TODO route paire à implémenter
         ArrayList<Couleur> couleurValide;
 
         if(route.getClass().getName() == "fr.umontpellier.iut.rails.RouteTerrestre" || route.getClass().getName() == "fr.umontpellier.iut.rails.RoutePaire"){
@@ -719,7 +729,9 @@ public class Joueur {
 
     /**
      * Attend une entrée de la part du joueur (au clavier ou sur la websocket) et
-     * renvoie le choix du joueur.
+     * renvoie le choix du joueur.<Destination> destinations = TestUtils.getDestinations(joueur1);
+        destinations.clear();
+
      *
      * Cette méthode lit les entrées du jeu (`Jeu.lireligne()`) jusqu'à ce
      * qu'un choix valide (un élément de `choix` ou de `boutons` ou
