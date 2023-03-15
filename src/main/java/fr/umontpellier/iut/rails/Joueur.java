@@ -402,7 +402,7 @@ public class Joueur {
         int nbJokerDispo = nombreCarteTransport(TypeCarteTransport.JOKER);
         ArrayList<RouteTerrestre> sousRoutes= new ArrayList<>();
         Map<RouteTerrestre, Integer> nbMateriauxParRoute = new HashMap<RouteTerrestre, Integer>();
-
+        boolean BateauNonDoubleJoue = false;
 
         //double le nombre de matériaux nécessaire si la route est double
         int nbMateriauNecessaire = routeChoisie.getLongueur();
@@ -420,6 +420,9 @@ public class Joueur {
 
             choix = choisir("Choisissez les cartes que vous souhaitez utiliser", options, null, false);
             carteChoisie = getCarteTransportPoseFromNom(choix);
+            if(carteChoisie.getType() == TypeCarteTransport.BATEAU && !carteChoisie.estDouble()){
+                BateauNonDoubleJoue = true;
+            }
             
             compteur+= getMateriaux(carteChoisie);
             cartesTransportPosees.remove(carteChoisie);
@@ -432,6 +435,13 @@ public class Joueur {
                         if(carteChoisie.getCouleur() != c.getCouleur() && c.getType()!=TypeCarteTransport.JOKER){
                             cartesTransport.add(c);
                         }
+                        else if(carteChoisie.getCouleur() == c.getCouleur()){
+                            if(contientCarteNonDoubleDeCouleur(cartesTransportPosees, c.getCouleur()) && c.estDouble() && routeChoisie.getLongueur()-compteur==1 && BateauNonDoubleJoue){
+                                cartesTransport.add(c);
+                            }
+
+                        }
+                        
                     }
                 }
                 cartesTransportPosees.removeAll(cartesTransport);
@@ -469,9 +479,6 @@ public class Joueur {
                 }
 
                 cartesTransportPosees.removeAll(cartesTransport);
-
-            //--------------------------------------------------------------------------------------------------------------------
-            //-------------------------------Attribution des Jokers en Attente en Fin---------------------------------------------    
             }
 
             
@@ -550,6 +557,25 @@ public class Joueur {
             }
         }
         return result;
+    }
+
+    private boolean contientCarteNonDoubleDeCouleur(List<CarteTransport> liste, Couleur coul){
+        for(CarteTransport c : liste){
+            if(c.getCouleur() == coul && !c.estDouble()){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private int nombreCarteNonDoubleDeCouleur(List<CarteTransport> liste, Couleur coul){
+        int compteur = 0;
+        for(CarteTransport c : liste){
+            if(c.getCouleur() == coul && !c.estDouble()){
+                compteur++;
+            }
+        }
+        return compteur;
     }
 
     private int getMateriaux(CarteTransport c){
@@ -685,7 +711,14 @@ public class Joueur {
                 couleurValide = combinaisonCouleurCarteTransport(TypeCarteTransport.BATEAU, route.getLongueur());
                 for(CarteTransport c : cartesTransport){
                     if(c.getType() == TypeCarteTransport.BATEAU && couleurValide.contains(c.getCouleur())){
-                        cartesTransportPosees.add(c);
+                        if(!c.estDouble()){
+                            if(nombreCarteTransport(TypeCarteTransport.JOKER)>0 || route.getLongueur()%2!=0){
+                                cartesTransportPosees.add(c);
+                            }
+                        }
+                        else{
+                            cartesTransportPosees.add(c);
+                        }
                     }
                     else if(c.getType() == TypeCarteTransport.JOKER){
                         cartesTransportPosees.add(c);
@@ -696,7 +729,14 @@ public class Joueur {
             else{
                 for(CarteTransport c : cartesTransport){
                     if(c.getType() == TypeCarteTransport.BATEAU && c.getCouleur() == route.getCouleur()){
-                        cartesTransportPosees.add(c);
+                        if(!c.estDouble()){
+                            if(nombreCarteTransport(TypeCarteTransport.JOKER)>0 || route.getLongueur()%2!=0){
+                                cartesTransportPosees.add(c);
+                            }
+                        }
+                        else{
+                            cartesTransportPosees.add(c);
+                        }
                     }
                     else if(c.getType() == TypeCarteTransport.JOKER){
                         cartesTransportPosees.add(c);
