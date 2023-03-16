@@ -882,8 +882,8 @@ public class Joueur {
                     }
                 }
                 cartesTransport.removeAll(cartesTransportPosees);
-                nombreCarteTransportDeCouleur(bateau,couleur);
-                poserCarteTransportCompatiblePort();
+                //nombreCarteTransportDeCouleur(bateau,couleur);
+                //poserCarteTransportCompatiblePort();
                 //choisir cartes transport à utiliser
                 //capture port
                 this.ports.add(portLibre.get(ports.indexOf(port)));
