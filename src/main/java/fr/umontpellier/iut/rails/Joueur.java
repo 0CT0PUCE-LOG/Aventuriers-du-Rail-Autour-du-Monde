@@ -424,11 +424,10 @@ public class Joueur {
             
             compteur+= getMateriaux(carteChoisie);
             cartesTransportPosees.remove(carteChoisie);
-            
 
             //retirer toutes les cartes non valide pour un choix
             if(!(routeChoisie instanceof RoutePaire)){
-                for(CarteTransport c : cartesTransportPosees){ // TODO faire special pour route double
+                for(CarteTransport c : cartesTransportPosees){
                     if(carteChoisie.getType()!= TypeCarteTransport.JOKER){
                         if(carteChoisie.getCouleur() != c.getCouleur() && c.getType()!=TypeCarteTransport.JOKER){
                             cartesTransport.add(c);
