@@ -113,12 +113,27 @@ public class Jeu implements Runnable {
         this.joueurCourant = joueurs.get(0);
     }
 
+
+
     public List<Joueur> getJoueurs() {
         return joueurs;
     }
 
     public List<Ville> getPortsLibres() {
         return new ArrayList<>(portsLibres);
+    }
+
+    public boolean removePortsLibres(Ville ville){
+        return portsLibres.remove(ville);
+    }
+
+    public Ville getPortFromNom(String nom){
+        int i = 0;
+        while(!nom.equals(this.portsLibres.get(i).nom())){
+            i++;
+        }
+        Ville ville = this.getPortsLibres().get(i);
+        return ville;
     }
 
     public List<Route> getRoutesLibres() {

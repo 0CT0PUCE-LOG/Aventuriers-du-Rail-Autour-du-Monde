@@ -157,8 +157,6 @@ public class Joueur {
 
         List<String> options = new ArrayList<String>();
         options.add("DESTINATION");
-        options.add("PIONS WAGON");
-        options.add("PIONS BATEAU");
         if(!jeu.piocheWagonEstVide()){
             options.add("WAGON");
         }
@@ -174,12 +172,12 @@ public class Joueur {
             options.add(r.getNom());
             routeNom.add(r.getNom());
         }
-
-        for(Ville v : portLibre){
-            options.add(v.nom());
-            portLibreNom.add(v.nom());
+        if(ports.size()<3){
+            for(Ville v : portLibre){
+                options.add(v.nom());
+                portLibreNom.add(v.getNom());
+            }
         }
-
 
         do{
             choix = choisir(
@@ -866,27 +864,71 @@ public class Joueur {
         for(int i=0;i<10;i++){
 
         }
+        String choix;
+        CarteTransport carteChoisie;
+        int[] repartitionCarteTransport = new int[2];
         if(routeRelieAPort(port) != null){
             if(routeRelieAPort(port).getLongueur() <= nombreCarteTransport(TypeCarteTransport.BATEAU)){
                 //distribution carte
                 ArrayList<Couleur> listeCouleurCompatible = combinaisonCouleurCarteTransportCompatibleConstructionPort();
-                //verifier ancre
-                //TO DO
+
                 for(CarteTransport c : cartesTransport){
-                    if(listeCouleurCompatible.contains(c.getCouleur())){
-                        //la poser
+                    if(listeCouleurCompatible.contains(c.getCouleur()) && c.getAncre()){
+                        //poser carte transport
                         cartesTransportPosees.add(c);
                     }
                     else if(c.getType()==TypeCarteTransport.JOKER){
+                        //poser le joker
                         cartesTransportPosees.add(c);
                     }
                 }
+                //joueur choisi les cartes à utiliser
+                int nbCarteChoisi = 0;
+                ArrayList<String> listeCarteNom = new ArrayList<>();
+
+                //liste des noms cartes que le joueur pet choisir
+
+
+                do{
+                    listeCarteNom.clear();
+                    for(CarteTransport c : cartesTransportPosees){
+                        listeCarteNom.add(c.getNom());
+                    }
+                    choix=choisir("Donnez les numéros des cartes à utiliser",listeCarteNom,null,false);
+
+
+                    if( listeCarteNom.contains(choix) ){
+                        System.out.println("CARTE CHOISIE :"+choix);
+                        carteChoisie = getCarteTransportPoseFromNom(choix);
+                        if(carteChoisie.getType()==TypeCarteTransport.BATEAU){
+                            repartitionCarteTransport[0]++;
+                            cartesTransportPosees.remove(carteChoisie);
+                            jeu.defausserBateau(carteChoisie);
+                        }
+                        else{
+                            repartitionCarteTransport[1]++;
+                            cartesTransportPosees.remove(carteChoisie);
+                            jeu.defausserWagon(carteChoisie);
+                        }
+                        cartesTransport.add(carteChoisie);
+                        listeCarteNom.remove(choix);
+                        cartesTransportPosees.remove(carteChoisie);
+                        mettreAJourCartePosePort(carteChoisie,repartitionCarteTransport);
+                        nbCarteChoisi++;
+                    }
+
+                    //joueur doit cliquer ou écrire le nom des cartes à prendre
+                }while(nbCarteChoisi<4);
+                System.out.println("FIN CHOIX CARTES");
+                cartesTransport.addAll(cartesTransportPosees);
                 cartesTransport.removeAll(cartesTransportPosees);
                 //nombreCarteTransportDeCouleur(bateau,couleur);
                 //poserCarteTransportCompatiblePort();
                 //choisir cartes transport à utiliser
                 //capture port
-                this.ports.add(portLibre.get(ports.indexOf(port)));
+                Ville portChoisie = jeu.getPortFromNom(port);
+                this.ports.add(portChoisie);
+                jeu.removePortsLibres(portChoisie);
                 log(String.format("Vous venez de capturer le port de "+port+".",toLog()));
             }
             else{
@@ -922,89 +964,6 @@ public class Joueur {
         }
     }
 
-    private void poserCarteTransportCompatiblePort(Route route){ //TODO route paire à implémenter
-        ArrayList<Couleur> couleurValide;
-
-        if(route.getClass().getName() == "fr.umontpellier.iut.rails.RouteTerrestre"){
-            if(route.getCouleur() == Couleur.GRIS){
-                couleurValide = combinaisonCouleurCarteTransport(TypeCarteTransport.WAGON, route.getLongueur());
-                for(CarteTransport c : cartesTransport){
-                    if(c.getType() == TypeCarteTransport.WAGON && couleurValide.contains(c.getCouleur())){
-                        cartesTransportPosees.add(c);
-                    }
-                    else if(c.getType()==TypeCarteTransport.JOKER){
-                        cartesTransportPosees.add(c);
-                    }
-                }
-                cartesTransport.removeAll(cartesTransportPosees);
-            }
-            else{
-                for(CarteTransport c : cartesTransport){
-                    if(c.getType() == TypeCarteTransport.WAGON && c.getCouleur() == route.getCouleur()){
-                        cartesTransportPosees.add(c);
-                    }
-                    else if(c.getType()==TypeCarteTransport.JOKER){
-                        cartesTransportPosees.add(c);
-                    }
-                }
-                cartesTransport.removeAll(cartesTransportPosees);
-            }
-
-        }
-
-        else if(route.getClass().getName() == "fr.umontpellier.iut.rails.RouteMaritime"){
-            if(route.getCouleur() == Couleur.GRIS){
-                couleurValide = combinaisonCouleurCarteTransport(TypeCarteTransport.BATEAU, route.getLongueur());
-                for(CarteTransport c : cartesTransport){
-                    if(c.getType() == TypeCarteTransport.BATEAU && couleurValide.contains(c.getCouleur())){
-                        if(!c.estDouble()){
-                            if(nombreCarteTransport(TypeCarteTransport.JOKER)>0 || route.getLongueur()%2!=0){
-                                cartesTransportPosees.add(c);
-                            }
-                        }
-                        else{
-                            cartesTransportPosees.add(c);
-                        }
-                    }
-                    else if(c.getType() == TypeCarteTransport.JOKER){
-                        cartesTransportPosees.add(c);
-                    }
-                }
-                cartesTransport.removeAll(cartesTransportPosees);
-            }
-            else{
-                for(CarteTransport c : cartesTransport){
-                    if(c.getType() == TypeCarteTransport.BATEAU && c.getCouleur() == route.getCouleur()){
-                        if(!c.estDouble()){
-                            if(nombreCarteTransport(TypeCarteTransport.JOKER)>0 || route.getLongueur()%2!=0){
-                                cartesTransportPosees.add(c);
-                            }
-                        }
-                        else{
-                            cartesTransportPosees.add(c);
-                        }
-                    }
-                    else if(c.getType() == TypeCarteTransport.JOKER){
-                        cartesTransportPosees.add(c);
-                    }
-                }
-                cartesTransport.removeAll(cartesTransportPosees);
-            }
-        }
-        else if(route.getClass().getName() == "fr.umontpellier.iut.rails.RoutePaire"){
-            int nbJoker = nombreCarteTransport(TypeCarteTransport.JOKER);
-            couleurValide = combinaisonCouleurCarteTransport(TypeCarteTransport.WAGON, 2-nbJoker);
-            for(CarteTransport c : cartesTransport){
-                if(c.getType() == TypeCarteTransport.WAGON && couleurValide.contains(c.getCouleur())){
-                    cartesTransportPosees.add(c);
-                }
-                else if(c.getType()==TypeCarteTransport.JOKER){
-                    cartesTransportPosees.add(c);
-                }
-            }
-            cartesTransport.removeAll(cartesTransportPosees);
-        }
-    }
 
     private ArrayList<Couleur> combinaisonCouleurCarteTransportCompatibleConstructionPort(){
         List<Couleur> listeCouleur = Arrays.asList(Couleur.BLANC,Couleur.JAUNE,Couleur.NOIR,Couleur.ROUGE,Couleur.VERT, Couleur.VIOLET);
@@ -1014,7 +973,7 @@ public class Joueur {
         int nbJoker = nombreCarteTransport(TypeCarteTransport.JOKER);
         ArrayList<Couleur> couleursValides = new ArrayList<Couleur>();
         for(CarteTransport c : cartesTransport){
-            if(!couleursValides.contains(c.getCouleur()) && c.getType() != TypeCarteTransport.JOKER){
+            if(!couleursValides.contains(c.getCouleur()) && c.getType() != TypeCarteTransport.JOKER && c.getAncre()){
                 if(listeCombinaisonBateau.get(listeCouleur.indexOf(c.getCouleur())) >=2 && listeCombinaisonWagon.get(listeCouleur.indexOf(c.getCouleur())) >=2){
                     couleursValides.add(c.getCouleur());
                 }
