@@ -805,7 +805,7 @@ public class Joueur {
         if(mode.equals("PIONS WAGON")){
             int nbWagon = 0;
             log(String.format("ECHANGE PIONS WAGON",toLog()));
-            List<String> nombreWagonOption = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25");
+            List<String> nombreWagonOption = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9","10","11","12","13","14","15");
             choix = choisir(
                     "Entrez dans la zone de texte la quantité à échanger. Attention vous perdrez 1 point de score pour chaque pion échangé.",
                     nombreWagonOption,
@@ -833,7 +833,7 @@ public class Joueur {
         }
         if(mode.equals("PIONS BATEAU")){
             int nbBateau = 0;
-            List<String> nombreBateauOption = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25");
+            List<String> nombreBateauOption = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9","10","11","12","13","14","15");
             choix = choisir(
                     "Entrez dans la zone de texte la quantité à échanger. Attention vous perdrez 1 point de score pour chaque pion échangé.",
                     nombreBateauOption,
