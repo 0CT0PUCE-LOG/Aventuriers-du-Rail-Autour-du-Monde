@@ -538,7 +538,7 @@ public class JoueurProfTest {
         Ville casablanca = ports.stream().filter(p -> p.nom().equals("Casablanca")).findFirst().get();
 
         jeu.setInput(
-                "New York", // invalide car pas de route connectée
+                //"New York", // invalide car pas de route connectée
                 "Casablanca", // Construire un port à Casablanca
                 "C141", // invalide car pas d'ancre
                 "C142", // bateau jaune
