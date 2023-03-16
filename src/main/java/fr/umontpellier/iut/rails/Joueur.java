@@ -860,81 +860,98 @@ public class Joueur {
 
     private void capturerPort(String port){
         //capturer le port qui est donné en paramètre et qui est dans la liste des ports, si il est déjà dans la liste c'est qu'il est capturable
-        List<Ville> portLibre = jeu.getPortsLibres();
-        for(int i=0;i<10;i++){
-
-        }
+        Ville portChoisi = jeu.getPortFromNom(port);
         String choix;
-        CarteTransport carteChoisie;
+        int nbCarteChoisi = 0;
         int[] repartitionCarteTransport = new int[2];
-        if(routeRelieAPort(port) != null){
-            if(routeRelieAPort(port).getLongueur() <= nombreCarteTransport(TypeCarteTransport.BATEAU)){
-                //distribution carte
-                ArrayList<Couleur> listeCouleurCompatible = combinaisonCouleurCarteTransportCompatibleConstructionPort();
+        //liste des noms cartes que le joueur peut choisir
+        ArrayList<String> options = new ArrayList<>();
+        CarteTransport carteChoisie;
 
-                for(CarteTransport c : cartesTransport){
-                    if(listeCouleurCompatible.contains(c.getCouleur()) && c.getAncre()){
-                        //poser carte transport
-                        cartesTransportPosees.add(c);
-                    }
-                    else if(c.getType()==TypeCarteTransport.JOKER){
-                        //poser le joker
-                        cartesTransportPosees.add(c);
+
+
+        if(routeRelieAPort(port) != null){
+            //poser cartes transport
+            ArrayList<Couleur> listeCouleurCompatible = combinaisonCouleurCarteTransportCompatibleConstructionPort();
+            for(CarteTransport c : cartesTransport){
+                if(listeCouleurCompatible.contains(c.getCouleur()) && c.getAncre()){
+                    //poser carte transport
+                    cartesTransportPosees.add(c);
+                }
+                else if(c.getType()==TypeCarteTransport.JOKER){
+                    //poser le joker
+                    cartesTransportPosees.add(c);
+                }
+            }
+
+            //joueur choisi les cartes à utiliser
+            do{
+                options.clear();
+                for(CarteTransport c : cartesTransportPosees){
+                    options.add(c.getNom());
+                }
+
+                choix=choisir("Donnez les numéros des cartes à utiliser",options,null,false);
+                carteChoisie = getCarteTransportPoseFromNom(choix);
+
+                cartesTransportPosees.remove(carteChoisie);
+
+                //retirer toutes les cartes non valides pour un choix
+                /*
+                for(CarteTransport c : cartesTransportPosees){
+                    if(carteChoisie.getType() != TypeCarteTransport.JOKER) {
+                        if (carteChoisie.getCouleur() != c.getCouleur() && c.getType() != TypeCarteTransport.JOKER) {
+                            cartesTransport.add(c);
+                        } else if (carteChoisie.getCouleur() == c.getCouleur()) {
+                            cartesTransport.add(c);
+                        }
                     }
                 }
-                //joueur choisi les cartes à utiliser
-                int nbCarteChoisi = 0;
-                ArrayList<String> listeCarteNom = new ArrayList<>();
+                cartesTransportPosees.removeAll(cartesTransport);
 
-                //liste des noms cartes que le joueur pet choisir
+                 */
+
+                //Retirer les cartes non compatibles
+
+                if(carteChoisie.getType() == TypeCarteTransport.WAGON || carteChoisie.getType() == TypeCarteTransport.JOKER) {
+                    jeu.defausserWagon(carteChoisie);
+                }
+                else if(carteChoisie.getType() == TypeCarteTransport.BATEAU) {
+                    jeu.defausserBateau(carteChoisie);
+                }
 
 
-                do{
-                    listeCarteNom.clear();
-                    for(CarteTransport c : cartesTransportPosees){
-                        listeCarteNom.add(c.getNom());
-                    }
-                    choix=choisir("Donnez les numéros des cartes à utiliser",listeCarteNom,null,false);
 
-                    carteChoisie = getCarteTransportPoseFromNom(choix);
+                //version non fonctionnelle de jeudi aprem
+                if(carteChoisie.getType()==TypeCarteTransport.BATEAU){
+                    repartitionCarteTransport[0]++;
                     cartesTransportPosees.remove(carteChoisie);
-                    if( listeCarteNom.contains(choix) ){//to delete, if statement is useless
-                        System.out.println("CARTE CHOISIE :"+choix);
+                    jeu.defausserBateau(carteChoisie);
+                }
+                else{
+                    repartitionCarteTransport[1]++;
+                    cartesTransportPosees.remove(carteChoisie);
+                    jeu.defausserWagon(carteChoisie);
+                }
+                cartesTransport.add(carteChoisie);
+                options.remove(choix);
 
-                        if(carteChoisie.getType()==TypeCarteTransport.BATEAU){
-                            repartitionCarteTransport[0]++;
-                            cartesTransportPosees.remove(carteChoisie);
-                            jeu.defausserBateau(carteChoisie);
-                        }
-                        else{
-                            repartitionCarteTransport[1]++;
-                            cartesTransportPosees.remove(carteChoisie);
-                            jeu.defausserWagon(carteChoisie);
-                        }
-                        cartesTransport.add(carteChoisie);
-                        listeCarteNom.remove(choix);
+                mettreAJourCartePosePort(carteChoisie,repartitionCarteTransport);
+                nbCarteChoisi++;
 
-                        mettreAJourCartePosePort(carteChoisie,repartitionCarteTransport);
-                        nbCarteChoisi++;
-                    }
-
-                    //joueur doit cliquer ou écrire le nom des cartes à prendre
-                }while(nbCarteChoisi<4);
-                System.out.println("FIN CHOIX CARTES");
-                cartesTransport.addAll(cartesTransportPosees);
-                cartesTransport.removeAll(cartesTransportPosees);
-                //nombreCarteTransportDeCouleur(bateau,couleur);
-                //poserCarteTransportCompatiblePort();
-                //choisir cartes transport à utiliser
-                //capture port
-                Ville portChoisie = jeu.getPortFromNom(port);
-                this.ports.add(portChoisie);
-                jeu.removePortsLibres(portChoisie);
-                log(String.format("Vous venez de capturer le port de "+port+".",toLog()));
-            }
-            else{
-                log(String.format("Vous n'avez pas assez de cartes bateau pour capturer le port de "+port+".",toLog()));
-            }
+                //joueur doit cliquer ou écrire le nom des cartes à prendre
+            }while(nbCarteChoisi<4);
+            System.out.println("FIN CHOIX CARTES");
+            cartesTransport.addAll(cartesTransportPosees);
+            cartesTransport.removeAll(cartesTransportPosees);
+            //nombreCarteTransportDeCouleur(bateau,couleur);
+            //poserCarteTransportCompatiblePort();
+            //choisir cartes transport à utiliser
+            //capture port
+            Ville portChoisie = jeu.getPortFromNom(port);
+            this.ports.add(portChoisie);
+            jeu.removePortsLibres(portChoisie);
+            log(String.format("Vous venez de capturer le port de "+port+".",toLog()));
         }
         else{
             log(String.format("Vous n'avez pas de route maritime qui relie le port de "+port+".",toLog()));
