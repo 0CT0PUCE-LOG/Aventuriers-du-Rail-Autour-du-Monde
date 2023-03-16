@@ -896,10 +896,11 @@ public class Joueur {
                     }
                     choix=choisir("Donnez les numéros des cartes à utiliser",listeCarteNom,null,false);
 
-
-                    if( listeCarteNom.contains(choix) ){
+                    carteChoisie = getCarteTransportPoseFromNom(choix);
+                    cartesTransportPosees.remove(carteChoisie);
+                    if( listeCarteNom.contains(choix) ){//to delete, if statement is useless
                         System.out.println("CARTE CHOISIE :"+choix);
-                        carteChoisie = getCarteTransportPoseFromNom(choix);
+
                         if(carteChoisie.getType()==TypeCarteTransport.BATEAU){
                             repartitionCarteTransport[0]++;
                             cartesTransportPosees.remove(carteChoisie);
@@ -912,7 +913,7 @@ public class Joueur {
                         }
                         cartesTransport.add(carteChoisie);
                         listeCarteNom.remove(choix);
-                        cartesTransportPosees.remove(carteChoisie);
+
                         mettreAJourCartePosePort(carteChoisie,repartitionCarteTransport);
                         nbCarteChoisi++;
                     }
