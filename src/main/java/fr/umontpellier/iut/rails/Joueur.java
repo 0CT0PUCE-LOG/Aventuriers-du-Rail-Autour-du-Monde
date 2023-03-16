@@ -863,8 +863,29 @@ public class Joueur {
     private void capturerPort(String port){
         //capturer le port qui est donné en paramètre et qui est dans la liste des ports, si il est déjà dans la liste c'est qu'il est capturable
         List<Ville> portLibre = jeu.getPortsLibres();
+        for(int i=0;i<10;i++){
+
+        }
         if(routeRelieAPort(port) != null){
             if(routeRelieAPort(port).getLongueur() <= nombreCarteTransport(TypeCarteTransport.BATEAU)){
+                //distribution carte
+                ArrayList<Couleur> listeCouleurCompatible = combinaisonCouleurCarteTransportCompatibleConstructionPort();
+                //verifier ancre
+                //TO DO
+                for(CarteTransport c : cartesTransport){
+                    if(listeCouleurCompatible.contains(c.getCouleur())){
+                        //la poser
+                        cartesTransportPosees.add(c);
+                    }
+                    else if(c.getType()==TypeCarteTransport.JOKER){
+                        cartesTransportPosees.add(c);
+                    }
+                }
+                cartesTransport.removeAll(cartesTransportPosees);
+                nombreCarteTransportDeCouleur(bateau,couleur);
+                poserCarteTransportCompatiblePort();
+                //choisir cartes transport à utiliser
+                //capture port
                 this.ports.add(portLibre.get(ports.indexOf(port)));
                 log(String.format("Vous venez de capturer le port de "+port+".",toLog()));
             }
@@ -877,6 +898,135 @@ public class Joueur {
         }
 
 
+    }
+
+
+    //repartitionCarteTransport[0] = nb bateau
+    //repartitionCarteTransport[1] = nb wagon
+    private void mettreAJourCartePosePort(CarteTransport derniereCarte,int[] repartitionCarteTransport){
+        if(derniereCarte.getType() != TypeCarteTransport.JOKER){
+            for(CarteTransport c : cartesTransportPosees){
+                if(c.getType() != TypeCarteTransport.JOKER){ //un joker est toujours compatible
+                    if(derniereCarte.getCouleur()!=c.getCouleur()){
+                        cartesTransport.add(c);
+                    }
+                    else if(c.getType()==TypeCarteTransport.BATEAU && repartitionCarteTransport[0]==2){
+                        cartesTransport.add(c);
+                    }
+                    else if(c.getType()==TypeCarteTransport.WAGON && repartitionCarteTransport[1]==2){
+                        cartesTransport.add(c);
+                    }
+                }
+            }
+            cartesTransportPosees.removeAll(cartesTransport);
+        }
+    }
+
+    private void poserCarteTransportCompatiblePort(Route route){ //TODO route paire à implémenter
+        ArrayList<Couleur> couleurValide;
+
+        if(route.getClass().getName() == "fr.umontpellier.iut.rails.RouteTerrestre"){
+            if(route.getCouleur() == Couleur.GRIS){
+                couleurValide = combinaisonCouleurCarteTransport(TypeCarteTransport.WAGON, route.getLongueur());
+                for(CarteTransport c : cartesTransport){
+                    if(c.getType() == TypeCarteTransport.WAGON && couleurValide.contains(c.getCouleur())){
+                        cartesTransportPosees.add(c);
+                    }
+                    else if(c.getType()==TypeCarteTransport.JOKER){
+                        cartesTransportPosees.add(c);
+                    }
+                }
+                cartesTransport.removeAll(cartesTransportPosees);
+            }
+            else{
+                for(CarteTransport c : cartesTransport){
+                    if(c.getType() == TypeCarteTransport.WAGON && c.getCouleur() == route.getCouleur()){
+                        cartesTransportPosees.add(c);
+                    }
+                    else if(c.getType()==TypeCarteTransport.JOKER){
+                        cartesTransportPosees.add(c);
+                    }
+                }
+                cartesTransport.removeAll(cartesTransportPosees);
+            }
+
+        }
+
+        else if(route.getClass().getName() == "fr.umontpellier.iut.rails.RouteMaritime"){
+            if(route.getCouleur() == Couleur.GRIS){
+                couleurValide = combinaisonCouleurCarteTransport(TypeCarteTransport.BATEAU, route.getLongueur());
+                for(CarteTransport c : cartesTransport){
+                    if(c.getType() == TypeCarteTransport.BATEAU && couleurValide.contains(c.getCouleur())){
+                        if(!c.estDouble()){
+                            if(nombreCarteTransport(TypeCarteTransport.JOKER)>0 || route.getLongueur()%2!=0){
+                                cartesTransportPosees.add(c);
+                            }
+                        }
+                        else{
+                            cartesTransportPosees.add(c);
+                        }
+                    }
+                    else if(c.getType() == TypeCarteTransport.JOKER){
+                        cartesTransportPosees.add(c);
+                    }
+                }
+                cartesTransport.removeAll(cartesTransportPosees);
+            }
+            else{
+                for(CarteTransport c : cartesTransport){
+                    if(c.getType() == TypeCarteTransport.BATEAU && c.getCouleur() == route.getCouleur()){
+                        if(!c.estDouble()){
+                            if(nombreCarteTransport(TypeCarteTransport.JOKER)>0 || route.getLongueur()%2!=0){
+                                cartesTransportPosees.add(c);
+                            }
+                        }
+                        else{
+                            cartesTransportPosees.add(c);
+                        }
+                    }
+                    else if(c.getType() == TypeCarteTransport.JOKER){
+                        cartesTransportPosees.add(c);
+                    }
+                }
+                cartesTransport.removeAll(cartesTransportPosees);
+            }
+        }
+        else if(route.getClass().getName() == "fr.umontpellier.iut.rails.RoutePaire"){
+            int nbJoker = nombreCarteTransport(TypeCarteTransport.JOKER);
+            couleurValide = combinaisonCouleurCarteTransport(TypeCarteTransport.WAGON, 2-nbJoker);
+            for(CarteTransport c : cartesTransport){
+                if(c.getType() == TypeCarteTransport.WAGON && couleurValide.contains(c.getCouleur())){
+                    cartesTransportPosees.add(c);
+                }
+                else if(c.getType()==TypeCarteTransport.JOKER){
+                    cartesTransportPosees.add(c);
+                }
+            }
+            cartesTransport.removeAll(cartesTransportPosees);
+        }
+    }
+
+    private ArrayList<Couleur> combinaisonCouleurCarteTransportCompatibleConstructionPort(){
+        List<Couleur> listeCouleur = Arrays.asList(Couleur.BLANC,Couleur.JAUNE,Couleur.NOIR,Couleur.ROUGE,Couleur.VERT, Couleur.VIOLET);
+        List<Integer> listeCombinaisonBateau = Arrays.asList(nombreCarteTransportDeCouleurSansJoker(TypeCarteTransport.BATEAU, Couleur.BLANC),nombreCarteTransportDeCouleurSansJoker(TypeCarteTransport.BATEAU, Couleur.JAUNE),nombreCarteTransportDeCouleur(TypeCarteTransport.BATEAU, Couleur.NOIR), nombreCarteTransportDeCouleur(TypeCarteTransport.BATEAU, Couleur.ROUGE), nombreCarteTransportDeCouleur(TypeCarteTransport.BATEAU, Couleur.VERT),nombreCarteTransportDeCouleur(TypeCarteTransport.BATEAU, Couleur.VIOLET));
+        List<Integer> listeCombinaisonWagon = Arrays.asList(nombreCarteTransportDeCouleurSansJoker(TypeCarteTransport.WAGON, Couleur.BLANC),nombreCarteTransportDeCouleurSansJoker(TypeCarteTransport.WAGON, Couleur.JAUNE),nombreCarteTransportDeCouleur(TypeCarteTransport.WAGON, Couleur.NOIR), nombreCarteTransportDeCouleur(TypeCarteTransport.WAGON, Couleur.ROUGE), nombreCarteTransportDeCouleur(TypeCarteTransport.WAGON, Couleur.VERT),nombreCarteTransportDeCouleur(TypeCarteTransport.WAGON, Couleur.VIOLET));
+
+        int nbJoker = nombreCarteTransport(TypeCarteTransport.JOKER);
+        ArrayList<Couleur> couleursValides = new ArrayList<Couleur>();
+        for(CarteTransport c : cartesTransport){
+            if(!couleursValides.contains(c.getCouleur()) && c.getType() != TypeCarteTransport.JOKER){
+                if(listeCombinaisonBateau.get(listeCouleur.indexOf(c.getCouleur())) >=2 && listeCombinaisonWagon.get(listeCouleur.indexOf(c.getCouleur())) >=2){
+                    couleursValides.add(c.getCouleur());
+                }
+                else if(listeCombinaisonBateau.get(listeCouleur.indexOf(c.getCouleur())) + nbJoker >=2 && listeCombinaisonWagon.get(listeCouleur.indexOf(c.getCouleur())) >=2){
+                    couleursValides.add(c.getCouleur());
+                }
+                else if(listeCombinaisonBateau.get(listeCouleur.indexOf(c.getCouleur())) >=2 && listeCombinaisonWagon.get(listeCouleur.indexOf(c.getCouleur())) +nbJoker >=2){
+                    couleursValides.add(c.getCouleur());
+                }
+            }
+        }
+        return couleursValides;
     }
 
     private Route routeRelieAPort(String port){
