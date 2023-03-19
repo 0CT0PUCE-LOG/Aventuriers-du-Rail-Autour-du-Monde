@@ -890,6 +890,7 @@ public class Joueur {
                 options.clear();
                 for (CarteTransport c : cartesTransportPosees) {
                     options.add(c.getNom());
+
                 }
 
                 choix = choisir("Donnez les numéros des cartes à utiliser", options, null, false);
