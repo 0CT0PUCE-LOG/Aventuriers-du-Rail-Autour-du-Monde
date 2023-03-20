@@ -156,7 +156,10 @@ public class Joueur {
 
 
         List<String> options = new ArrayList<String>();
-        options.add("DESTINATION");
+        if(!jeu.piocheDestinationEstVide()){
+            options.add("DESTINATION");
+        }
+
         if(!jeu.piocheWagonEstVide()){
             options.add("WAGON");
         }
@@ -213,8 +216,10 @@ public class Joueur {
                     
                 }
                 if(portLibreNom.contains(choix)){//Condition d'entrée pas bonne il faut mettre un truc du genre portNom.contains(choix)
-                    capturerPort(choix);
-                    aJoue = true;
+                    if(peutConstruirePort(jeu.getPortFromNom(choix))){
+                        construirePort(choix);
+                        aJoue = true;
+                    } 
                 }
             }
         }while(!aJoue);
@@ -857,9 +862,9 @@ public class Joueur {
     }
 
 
-    private void capturerPort(String port){
+    private void construirePort(String nomPort){
         //capturer le port qui est donné en paramètre et qui est dans la liste des ports, si il est déjà dans la liste c'est qu'il est capturable
-        Ville portChoisi = jeu.getPortFromNom(port);
+        Ville portChoisi = jeu.getPortFromNom(nomPort);
         String choix;
         int nbCarteChoisi = 0;
         int[] repartitionCarteTransport = new int[2];
@@ -868,188 +873,140 @@ public class Joueur {
         CarteTransport carteChoisie;
 
 
+        //poser cartes transport
+        ArrayList<Couleur> listeCouleurCompatible = combinaisonCouleurCarteTransportCompatibleConstructionPort();
+        for(CarteTransport c : cartesTransport){
+            if(listeCouleurCompatible.contains(c.getCouleur()) && c.getAncre()){
+                //poser carte transport
+                cartesTransportPosees.add(c);
+            }
+            else if(c.getType()==TypeCarteTransport.JOKER){
+                //poser le joker
+                cartesTransportPosees.add(c);
+            }
+        }
+        cartesTransport.removeAll(cartesTransportPosees);
 
-        if(2<3){//routeRelieAPort(port) != null
-            //poser cartes transport
-            ArrayList<Couleur> listeCouleurCompatible = combinaisonCouleurCarteTransportCompatibleConstructionPort();
-            for(CarteTransport c : cartesTransport){
-                if(listeCouleurCompatible.contains(c.getCouleur()) && c.getAncre()){
-                    //poser carte transport
-                    cartesTransportPosees.add(c);
-                    cartesTransport.remove(c);
-                }
-                else if(c.getType()==TypeCarteTransport.JOKER){
-                    //poser le joker
-                    cartesTransportPosees.add(c);
-                    cartesTransport.remove(c);
-                }
+        //joueur choisi les cartes à utiliser
+        do {
+            options.clear();
+            for (CarteTransport c : cartesTransportPosees) {
+                options.add(c.getNom());
+
             }
 
-            //joueur choisi les cartes à utiliser
-            do {
-                options.clear();
-                for (CarteTransport c : cartesTransportPosees) {
-                    options.add(c.getNom());
-
-                }
-
-                choix = choisir("Donnez les numéros des cartes à utiliser", options, null, false);
-                carteChoisie = getCarteTransportPoseFromNom(choix);
-                if(2<3){
-                    //options.contains(carteChoisie) &&
-                    //carteChoisie != null
+            choix = choisir("Choisissez les cartes a utiliser pour construire ce port", options, null, false);
+            carteChoisie = getCarteTransportPoseFromNom(choix);
 
 
+            nbCarteChoisi++;
+            if(carteChoisie.getType() == TypeCarteTransport.BATEAU){
+                repartitionCarteTransport[0]++;
+                jeu.defausserBateau(carteChoisie);
+            }
+            else if(carteChoisie.getType() == TypeCarteTransport.WAGON){
+                repartitionCarteTransport[1]++;
+                jeu.defausserWagon(carteChoisie);
+            }
+            else if(carteChoisie.getType() == TypeCarteTransport.JOKER){
+                jeu.defausserWagon(carteChoisie);
+            }
 
-                    nbCarteChoisi++;
-                    //mettreAJourCartePosePort(carteChoisie,repartitionCarteTransport);
-                    cartesTransportPosees.remove(carteChoisie);
+            cartesTransportPosees.remove(carteChoisie);
 
-                    //retirer toutes les cartes non valides pour un choix
-                /*
-                for(CarteTransport c : cartesTransportPosees){
-                    if(carteChoisie.getType() != TypeCarteTransport.JOKER) {
-                        if (carteChoisie.getCouleur() != c.getCouleur() && c.getType() != TypeCarteTransport.JOKER) {
-                            cartesTransport.add(c);
-                        } else if (carteChoisie.getCouleur() == c.getCouleur()) {
-                            cartesTransport.add(c);
-                        }
-                    }
-                }
-                cartesTransportPosees.removeAll(cartesTransport);
+            mettreAJourCartePosePort(carteChoisie, repartitionCarteTransport);
 
-                 */
-
-                    //Retirer les cartes non compatibles
-
-                    if (carteChoisie.getType() == TypeCarteTransport.BATEAU) {
-                        //cartesTransportPosees.remove(carteChoisie);
-                        jeu.defausserBateau(carteChoisie);
-                        repartitionCarteTransport[0]++;
-                        mettreAJourCartePosePort(carteChoisie,repartitionCarteTransport);
-                    } else if (carteChoisie.getType() == TypeCarteTransport.WAGON || carteChoisie.getType() == TypeCarteTransport.JOKER) {
-                        //cartesTransportPosees.remove(carteChoisie);
-                        jeu.defausserWagon(carteChoisie);
-                        repartitionCarteTransport[1]++;
-                        mettreAJourCartePosePort(carteChoisie,repartitionCarteTransport);
-                    }
-                    cartesTransport.add(carteChoisie);
-                    options.remove(choix);
-                }
+        }while(nbCarteChoisi<4);
 
 
+        //remise des cartes restantes dans Cartes Transport
+        cartesTransport.addAll(cartesTransportPosees);
+        cartesTransportPosees.removeAll(cartesTransport);
 
-            }while(nbCarteChoisi<4);
-            //remise des cartes restantes dans Cartes Transport
-            cartesTransport.addAll(cartesTransportPosees);
-            cartesTransportPosees.removeAll(cartesTransport);
-
-            //attribution du port
-            Ville portChoisie = jeu.getPortFromNom(port);
-            this.ports.add(portChoisie);
-            jeu.removePortsLibres(portChoisie);
-            log(String.format("Vous venez de capturer le port de "+port+".",toLog()));
-
-
-            /*
-                //version non fonctionnelle de jeudi aprem
-                if(carteChoisie.getType()==TypeCarteTransport.BATEAU){
-                    repartitionCarteTransport[0]++;
-                    cartesTransportPosees.remove(carteChoisie);
-                    jeu.defausserBateau(carteChoisie);
-                }
-                else{
-                    repartitionCarteTransport[1]++;
-                    cartesTransportPosees.remove(carteChoisie);
-                    jeu.defausserWagon(carteChoisie);
-                }
-                cartesTransport.add(carteChoisie);
-                options.remove(choix);
-
-                mettreAJourCartePosePort(carteChoisie,repartitionCarteTransport);
-                nbCarteChoisi++;
-
-                //joueur doit cliquer ou écrire le nom des cartes à prendre
-            }while(nbCarteChoisi<4);
-            System.out.println("FIN CHOIX CARTES");
-            cartesTransport.addAll(cartesTransportPosees);
-            cartesTransport.removeAll(cartesTransportPosees);
-            //nombreCarteTransportDeCouleur(bateau,couleur);
-            //poserCarteTransportCompatiblePort();
-            //choisir cartes transport à utiliser
-            //capture port
-            Ville portChoisie = jeu.getPortFromNom(port);
-            this.ports.add(portChoisie);
-            jeu.removePortsLibres(portChoisie);
-            log(String.format("Vous venez de capturer le port de "+port+".",toLog()));
-
-             */
-        }
-        else{
-            log(String.format("Vous n'avez pas de route maritime qui relie le port de "+port+".",toLog()));
-        }
-
-
+        //attribution du port
+        this.ports.add(portChoisi);
+        jeu.removePortsLibres(portChoisi);
+        log(String.format("Vous venez de capturer le port de "+nomPort+".",toLog()));
+    
     }
 
 
-    //repartitionCarteTransport[0] = nb bateau
-    //repartitionCarteTransport[1] = nb wagon
     private void mettreAJourCartePosePort(CarteTransport derniereCarte,int[] repartitionCarteTransport){
         if(derniereCarte.getType() != TypeCarteTransport.JOKER){
             for(CarteTransport c : cartesTransportPosees){
                 if(c.getType() != TypeCarteTransport.JOKER){ //un joker est toujours compatible
                     if(derniereCarte.getCouleur()!=c.getCouleur()){
                         cartesTransport.add(c);
-                        cartesTransportPosees.remove(c);
                     }
                     else if(c.getType()==TypeCarteTransport.BATEAU && repartitionCarteTransport[0]==2){
                         cartesTransport.add(c);
-                        cartesTransportPosees.remove(c);
                     }
                     else if(c.getType()==TypeCarteTransport.WAGON && repartitionCarteTransport[1]==2){
                         cartesTransport.add(c);
-                        cartesTransportPosees.remove(c);
                     }
                 }
             }
-            //cartesTransportPosees.removeAll(cartesTransport);
+            cartesTransportPosees.removeAll(cartesTransport);
         }
     }
 
 
     private ArrayList<Couleur> combinaisonCouleurCarteTransportCompatibleConstructionPort(){
         List<Couleur> listeCouleur = Arrays.asList(Couleur.BLANC,Couleur.JAUNE,Couleur.NOIR,Couleur.ROUGE,Couleur.VERT, Couleur.VIOLET);
-        List<Integer> listeCombinaisonBateau = Arrays.asList(nombreCarteTransportDeCouleurSansJoker(TypeCarteTransport.BATEAU, Couleur.BLANC),nombreCarteTransportDeCouleurSansJoker(TypeCarteTransport.BATEAU, Couleur.JAUNE),nombreCarteTransportDeCouleur(TypeCarteTransport.BATEAU, Couleur.NOIR), nombreCarteTransportDeCouleur(TypeCarteTransport.BATEAU, Couleur.ROUGE), nombreCarteTransportDeCouleur(TypeCarteTransport.BATEAU, Couleur.VERT),nombreCarteTransportDeCouleur(TypeCarteTransport.BATEAU, Couleur.VIOLET));
-        List<Integer> listeCombinaisonWagon = Arrays.asList(nombreCarteTransportDeCouleurSansJoker(TypeCarteTransport.WAGON, Couleur.BLANC),nombreCarteTransportDeCouleurSansJoker(TypeCarteTransport.WAGON, Couleur.JAUNE),nombreCarteTransportDeCouleur(TypeCarteTransport.WAGON, Couleur.NOIR), nombreCarteTransportDeCouleur(TypeCarteTransport.WAGON, Couleur.ROUGE), nombreCarteTransportDeCouleur(TypeCarteTransport.WAGON, Couleur.VERT),nombreCarteTransportDeCouleur(TypeCarteTransport.WAGON, Couleur.VIOLET));
+        List<Integer> listeCombinaisonBateau = Arrays.asList(nombreAncreCarteTransportCouleur(TypeCarteTransport.BATEAU, Couleur.BLANC),nombreAncreCarteTransportCouleur(TypeCarteTransport.BATEAU, Couleur.JAUNE),nombreAncreCarteTransportCouleur(TypeCarteTransport.BATEAU, Couleur.NOIR), nombreAncreCarteTransportCouleur(TypeCarteTransport.BATEAU, Couleur.ROUGE), nombreAncreCarteTransportCouleur(TypeCarteTransport.BATEAU, Couleur.VERT),nombreAncreCarteTransportCouleur(TypeCarteTransport.BATEAU, Couleur.VIOLET));
+        List<Integer> listeCombinaisonWagon = Arrays.asList(nombreAncreCarteTransportCouleur(TypeCarteTransport.WAGON, Couleur.BLANC),nombreAncreCarteTransportCouleur(TypeCarteTransport.WAGON, Couleur.JAUNE),nombreAncreCarteTransportCouleur(TypeCarteTransport.WAGON, Couleur.NOIR), nombreAncreCarteTransportCouleur(TypeCarteTransport.WAGON, Couleur.ROUGE), nombreAncreCarteTransportCouleur(TypeCarteTransport.WAGON, Couleur.VERT),nombreAncreCarteTransportCouleur(TypeCarteTransport.WAGON, Couleur.VIOLET));
 
         int nbJoker = nombreCarteTransport(TypeCarteTransport.JOKER);
         ArrayList<Couleur> couleursValides = new ArrayList<>();
-        for(CarteTransport c : cartesTransport){
-            if(!couleursValides.contains(c.getCouleur()) && c.getType() != TypeCarteTransport.JOKER && c.getAncre()){
-                if(listeCombinaisonBateau.get(listeCouleur.indexOf(c.getCouleur())) >=2 && listeCombinaisonWagon.get(listeCouleur.indexOf(c.getCouleur())) >=2){
-                    couleursValides.add(c.getCouleur());
-                }
-                else if(listeCombinaisonBateau.get(listeCouleur.indexOf(c.getCouleur())) + nbJoker >=2 && listeCombinaisonWagon.get(listeCouleur.indexOf(c.getCouleur())) >=2){
-                    couleursValides.add(c.getCouleur());
-                }
-                else if(listeCombinaisonBateau.get(listeCouleur.indexOf(c.getCouleur())) >=2 && listeCombinaisonWagon.get(listeCouleur.indexOf(c.getCouleur())) +nbJoker >=2){
-                    couleursValides.add(c.getCouleur());
-                }
+        for(Couleur coul : listeCouleur){
+            if(listeCombinaisonBateau.get(listeCouleur.indexOf(coul)) >=2 && listeCombinaisonWagon.get(listeCouleur.indexOf(coul)) >=2){
+                couleursValides.add(coul);
+            }
+            else if(listeCombinaisonBateau.get(listeCouleur.indexOf(coul)) + nbJoker >=2 && listeCombinaisonWagon.get(listeCouleur.indexOf(coul)) >=2){
+                couleursValides.add(coul);
+            }
+            else if(listeCombinaisonBateau.get(listeCouleur.indexOf(coul)) >=2 && listeCombinaisonWagon.get(listeCouleur.indexOf(coul)) +nbJoker >=2){
+                couleursValides.add(coul);
             }
         }
         return couleursValides;
     }
 
-    private Route routeRelieAPort(String port){
-        //vérifie si le joueur possède une route terrestre ou maritime qui est relié au port
-        for(Route r : this.routes){
-            if(r.getVille1().equals(port) || r.getVille2().equals(port)){
-                return r;
+    private int nombreAncreCarteTransportCouleur(TypeCarteTransport type, Couleur coul){
+        int compteur = 0;
+        for(CarteTransport c : cartesTransport){
+            if(c.getType()== type && c.getCouleur() == coul && c.getAncre()){
+                compteur++;
+                if(c.estDouble()){
+                    compteur++;
+                }
             }
         }
-        return null;
+        return compteur;
     }
+
+    private boolean peutConstruirePort(Ville port){
+
+        boolean result = false;
+    
+        //----------------------------Vérification si le joueur a une route qui mène au port----------------------
+        for(Route r : this.routes){
+            if(r.getVille1().equals(port) || r.getVille2().equals(port)){
+                result = true;
+            }
+        }
+        //--------------------------------------------------------------------------------------------------------
+        //------------------------Vérification si le joueur possède les cartes nécessaires------------------------
+        if(result == true){
+            ArrayList<Couleur> CouleursCompatible = combinaisonCouleurCarteTransportCompatibleConstructionPort();
+            if(CouleursCompatible.size()==0){
+                result = false;
+            }
+        }
+        
+        return result;
+    }
+
 
 
     /**
