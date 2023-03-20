@@ -1024,7 +1024,7 @@ public class Joueur {
         List<Integer> listeCombinaisonWagon = Arrays.asList(nombreCarteTransportDeCouleurSansJoker(TypeCarteTransport.WAGON, Couleur.BLANC),nombreCarteTransportDeCouleurSansJoker(TypeCarteTransport.WAGON, Couleur.JAUNE),nombreCarteTransportDeCouleur(TypeCarteTransport.WAGON, Couleur.NOIR), nombreCarteTransportDeCouleur(TypeCarteTransport.WAGON, Couleur.ROUGE), nombreCarteTransportDeCouleur(TypeCarteTransport.WAGON, Couleur.VERT),nombreCarteTransportDeCouleur(TypeCarteTransport.WAGON, Couleur.VIOLET));
 
         int nbJoker = nombreCarteTransport(TypeCarteTransport.JOKER);
-        ArrayList<Couleur> couleursValides = new ArrayList<Couleur>();
+        ArrayList<Couleur> couleursValides = new ArrayList<>();
         for(CarteTransport c : cartesTransport){
             if(!couleursValides.contains(c.getCouleur()) && c.getType() != TypeCarteTransport.JOKER && c.getAncre()){
                 if(listeCombinaisonBateau.get(listeCouleur.indexOf(c.getCouleur())) >=2 && listeCombinaisonWagon.get(listeCouleur.indexOf(c.getCouleur())) >=2){
