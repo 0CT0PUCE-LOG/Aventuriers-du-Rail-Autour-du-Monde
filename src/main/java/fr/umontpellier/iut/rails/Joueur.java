@@ -1112,8 +1112,46 @@ public class Joueur {
         // Cette méthode pour l'instant renvoie false pour que le jeu puisse s'exécuter.
         // À vous de modifier le corps de cette fonction pour qu'elle retourne la valeur attendue.
         //TODO
-        return false;
+        return destinationEstCompleteRec(d.getVilles(), new ArrayList<String>(), d.getVilles().get(0));
     }
+
+    private boolean destinationEstCompleteRec(ArrayList<String> listeVilles, ArrayList<String> dejaVu, String derniereVille){
+        ArrayList<String> predecesseurs = getListePredecesseurs(derniereVille, dejaVu);
+        if(dejaVu.containsAll(listeVilles)){
+            return true;
+        }
+        else if(predecesseurs.size()==0){
+            return false;
+        }
+        else{
+            boolean result = false;
+            int i = 0;
+            while(i<predecesseurs.size() && result==false){
+                dejaVu.add(predecesseurs.get(i));
+                result = result || destinationEstCompleteRec(listeVilles, dejaVu, predecesseurs.get(i));
+                i++;
+            }
+            return result;
+        }
+    }
+
+    private ArrayList<String> getListePredecesseurs(String ville, ArrayList<String> dejaVu){
+        ArrayList<String> predecesseurs = new ArrayList<>();
+        if(ville != null){
+            for(Route r : routes){
+                if(!predecesseurs.contains(r.getVille1().getNom()) && r.getVille1().getNom()!= ville && r.getVille2().getNom()== ville && !dejaVu.contains(r.getVille1().getNom())){
+                    predecesseurs.add(r.getVille1().getNom());
+                }
+                else if(!predecesseurs.contains(r.getVille2().getNom()) && r.getVille2().getNom()!= ville && r.getVille1().getNom()== ville && !dejaVu.contains(r.getVille2().getNom())){
+                    predecesseurs.add(r.getVille2().getNom());
+                }
+            }
+        }
+        
+        return predecesseurs;
+    }
+
+    
 
     public int calculerScoreFinal() {
         //TODO
