@@ -60,6 +60,18 @@ public class Destination {
         }
     }
 
+    public int getValeurSimple() {
+        return valeurSimple;
+    }
+
+    public int getValeurMax() {
+        return valeurMax;
+    }
+
+    public int getPenalite() {
+        return penalite;
+    }
+
     public String getNom(){
         return nom;
     }

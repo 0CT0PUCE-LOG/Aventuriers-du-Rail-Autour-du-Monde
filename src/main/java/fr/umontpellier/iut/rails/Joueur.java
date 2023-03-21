@@ -1135,6 +1135,7 @@ public class Joueur {
         }
     }
 
+
     private ArrayList<String> getListePredecesseurs(String ville, ArrayList<String> dejaVu){
         ArrayList<String> predecesseurs = new ArrayList<>();
         if(ville != null){
@@ -1151,7 +1152,63 @@ public class Joueur {
         return predecesseurs;
     }
 
-    
+    /**
+     * @param d est un itinéraire (au moins 3 ville) et est Complet
+     * @return le nombrer de points qu'il faudra attribuer au joueur
+     */
+    private int nbPointsAttribuerItinneraire(Destination d){
+        boolean estDansLeBonOrdre = itinéraireEstDansLeBonOrdre(d.getVilles(), new ArrayList<String>(), d.getVilles().get(0));
+        if(estDansLeBonOrdre){
+            return d.getValeurMax();
+        }
+        else{
+            return d.getValeurSimple();
+        }
+    }
+
+    private boolean itinéraireEstDansLeBonOrdre(ArrayList<String> listeVilles, ArrayList<String> dejaVu, String derniereVille){
+        ArrayList<String> predecesseurs = getListePredecesseurs(derniereVille, dejaVu);
+        if(estDansLeBonOrdre(dejaVu, listeVilles)){
+            return true;
+        }
+        else if(predecesseurs.size()==0){
+            return false;
+        }
+        else{
+            boolean result = false;
+            int i = 0;
+            while(i<predecesseurs.size() && result==false){
+                dejaVu.add(predecesseurs.get(i));
+                result = result || destinationEstCompleteRec(listeVilles, dejaVu, predecesseurs.get(i));
+                i++;
+            }
+            return result;
+        }
+    }
+
+    private boolean estDansLeBonOrdre(ArrayList<String> listeEssaie, ArrayList<String> listeReference){
+        boolean result=false;
+        if(listeReference.containsAll(listeEssaie)){
+            result = true;
+            int dernierIndice = -1;
+            int i;
+            for(String v : listeReference){
+                i=0;
+                while(i<listeEssaie.size()){
+                    if(listeEssaie.get(i)==v){
+                        if(dernierIndice<i){
+                            dernierIndice = i;
+                        }
+                        else{
+                            result = false;
+                        }
+                    }
+                    i++;
+                }
+            }
+        }
+        return result;
+    }
 
     public int calculerScoreFinal() {
         //TODO
