@@ -758,7 +758,7 @@ public class Joueur {
                     cartesTransportPosees.add(c);
                 }
             }
-            cartesTransport.removeAll(cartesTransportPosees);    
+            cartesTransport.removeAll(cartesTransportPosees);
         }
     }
 
@@ -1009,6 +1009,10 @@ public class Joueur {
 
 
 
+
+
+
+
     /**
      * Attend une entrée de la part du joueur (au clavier ou sur la websocket) et
      * renvoie le choix du joueur.<Destination> destinations = TestUtils.getDestinations(joueur1);
@@ -1210,9 +1214,52 @@ public class Joueur {
         return result;
     }
 
+    //fonction qui calcule et renvoie le score du joueur
     public int calculerScoreFinal() {
-        //TODO
-        throw new RuntimeException("Méthode pas encore implémentée !");
+        //ajoute score des destinations
+        for(Destination d : destinations){
+            if(destinationEstComplete(d)){
+                this.score+=nbPointsAttribuerItinneraire(d);
+            }
+            else{
+                this.score-=d.getPenalite();
+            }
+        }
+
+        //enlève 4 points par ports non construits parmi les 3 ports possibles
+        this.score -= (3 - (this.ports.size())) * 4;
+
+        //ajoute le score des ports construits
+        //var pour le nombre de points ajouté par chaque port
+        int scorePort = 0;
+        for(Ville v : ports){
+            for(Destination d : destinations){
+                if(d.getVilles().contains(v.getNom()) && destinationEstComplete(d)){
+                    scorePort++;
+                }
+            }
+            if(scorePort==1){
+                this.score+=20;
+            }
+            else if(scorePort==2){
+                this.score+=30;
+            }
+            else if(scorePort>=3){
+                this.score+=40;
+            }
+        }
+        return this.score;
+    }
+
+    //renvoie le score du joueur
+    public int getScore(){
+        return this.score;
+    }
+
+    //fonctions get pour fin de partie
+
+    public int getNbPions(){
+        return nbPionsWagon + nbPionsBateau;
     }
 
     /**

@@ -214,6 +214,12 @@ public class Jeu implements Runnable {
         // IMPORTANT : Le corps de cette fonction est à réécrire entièrement
         // Un exemple très simple est donné pour illustrer l'utilisation de certaines méthodes
 
+        //var pour début de fin de partie
+        boolean finDePartie = false;
+
+        //compteur de tour
+        int compteur = 2*getJoueurs().size();
+
         //ajoue des cartes de Transport Visible
         for(int i=0; i<3; i++){
             cartesTransportVisibles.add(piocherCarteBateau());
@@ -221,15 +227,38 @@ public class Jeu implements Runnable {
         }
 
         for (Joueur j: joueurs) {
-            joueurCourant = j;
             j.setUp();
         }
+        while(compteur > 0) {
+            for (Joueur j : joueurs) {
+                j.jouerTour();
+                if(j.getNbPions()<=6){
+                    finDePartie= true;
+                }
+                if(finDePartie){
+                    compteur--;
+                }
+            }
 
-        for (Joueur j : joueurs) {
-            joueurCourant = j;
-            j.jouerTour();
         }
+
         // Fin de la partie
+
+        //calcul score
+        for(Joueur j : joueurs){
+            j.calculerScoreFinal();
+        }
+
+        //affichage gagnant
+        int scoremax = 0;
+        String gagnant = "";
+        for(Joueur j : joueurs){
+            if(j.getScore() >scoremax){
+                scoremax = j.getScore();
+                gagnant = j.getNom();
+            }
+        }
+
         prompt("Fin de la partie.", new ArrayList<>(), true);
     }
 
