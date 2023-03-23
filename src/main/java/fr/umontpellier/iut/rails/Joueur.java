@@ -350,7 +350,9 @@ public class Joueur {
         boolean peutPasser = true;
 
         for(int i=0; i<nbCartePioche; i++){
-            pioche.add(this.jeu.piocheDestination());
+            if(!jeu.piocheDestinationEstVide()){
+                pioche.add(this.jeu.piocheDestination());
+            }
         }
 
         List<Bouton> boutons = new ArrayList<Bouton>();
@@ -512,6 +514,13 @@ public class Joueur {
         routes.add(routeChoisie);
         jeu.removeRoutesLibre(routeChoisie);
 
+        //elimination de la route parallèle si il y en a si il y a moins de 4 joueur
+        if(jeu.getJoueurs().size()<4){
+            if(routeChoisie.getRouteParallele()!=null){
+                jeu.removeRoutesLibre(routeChoisie.getRouteParallele());
+            }
+        }
+
         //attribution du score
         score+= routeChoisie.getScore();
 
@@ -595,8 +604,10 @@ public class Joueur {
      */
     private boolean peutPrendreRoute(Route route){
         boolean estPossible = true;
-
-        if(route.getClass().getName() == "fr.umontpellier.iut.rails.RoutePaire"){
+        if(route.getRouteParallele() != null && routes.contains(route.getRouteParallele())){
+            estPossible = false;
+        }
+        else if(route instanceof RoutePaire){
             if(route.getLongueur()> nbPionsWagon){
                 estPossible = false;
             }
@@ -605,7 +616,7 @@ public class Joueur {
             }
         }
 
-        else if(route.getClass().getName() == "fr.umontpellier.iut.rails.RouteTerrestre"){
+        else if(route instanceof RouteTerrestre){
             if(route.getLongueur()> nbPionsWagon){
                 estPossible = false;
             }
@@ -617,7 +628,7 @@ public class Joueur {
             }
         }
 
-        else if(route.getClass().getName() == "fr.umontpellier.iut.rails.RouteMaritime"){
+        else if(route instanceof RouteMaritime ){
             if(route.getLongueur()> nbPionsBateau){
                 estPossible = false;
             }
@@ -714,7 +725,7 @@ public class Joueur {
                 for(CarteTransport c : cartesTransport){
                     if(c.getType() == TypeCarteTransport.BATEAU && couleurValide.contains(c.getCouleur())){
                         if(!c.estDouble()){
-                            if(nombreCarteTransport(TypeCarteTransport.JOKER)>0 || route.getLongueur()%2!=0){
+                            if(nombreCarteTransport(TypeCarteTransport.JOKER)>0 || route.getLongueur()%2!=0 || route.getLongueur()-nombreCarteTransportDeCouleurDouble(TypeCarteTransport.BATEAU, c.getCouleur()) > 0){
                                 cartesTransportPosees.add(c);
                             }
                         }
@@ -732,7 +743,7 @@ public class Joueur {
                 for(CarteTransport c : cartesTransport){
                     if(c.getType() == TypeCarteTransport.BATEAU && c.getCouleur() == route.getCouleur()){
                         if(!c.estDouble()){
-                            if(nombreCarteTransport(TypeCarteTransport.JOKER)>0 || route.getLongueur()%2!=0){
+                            if(nombreCarteTransport(TypeCarteTransport.JOKER)>0 || route.getLongueur()%2!=0 || route.getLongueur()-nombreCarteTransportDeCouleurDouble(TypeCarteTransport.BATEAU, c.getCouleur()) > 0){
                                 cartesTransportPosees.add(c);
                             }
                         }
@@ -770,6 +781,18 @@ public class Joueur {
                 compteur++;
                 if(cartesTransport.get(i).estDouble()){
                     compteur++;
+                }
+            }
+        }
+        return compteur;
+    }
+
+    private int nombreCarteTransportDeCouleurDouble(TypeCarteTransport type ,Couleur couleur){
+        int compteur = 0;
+        for(int i = 0; i<cartesTransport.size();i++){
+            if(((cartesTransport.get(i).getCouleur() == couleur && cartesTransport.get(i).getType() == type)) || cartesTransport.get(i).getType() == TypeCarteTransport.JOKER){
+                if(cartesTransport.get(i).estDouble()){
+                    compteur+= 2;
                 }
             }
         }
@@ -1170,6 +1193,7 @@ public class Joueur {
         }
     }
 
+    //fonction innutile dans la Partie 1
     private boolean itinéraireEstDansLeBonOrdre(ArrayList<String> listeVilles, ArrayList<String> dejaVu, String derniereVille){
         ArrayList<String> predecesseurs = getListePredecesseurs(derniereVille, dejaVu);
         if(estDansLeBonOrdre(dejaVu, listeVilles)){
@@ -1190,6 +1214,7 @@ public class Joueur {
         }
     }
 
+    //sous fonction de itinéraireEstDansLeBonOrdre innutile dans la partie 1
     private boolean estDansLeBonOrdre(ArrayList<String> listeEssaie, ArrayList<String> listeReference){
         boolean result=false;
         if(listeReference.containsAll(listeEssaie)){
@@ -1216,18 +1241,19 @@ public class Joueur {
 
     //fonction qui calcule et renvoie le score du joueur
     public int calculerScoreFinal() {
+        int scoreFinal = this.score;
         //ajoute score des destinations
         for(Destination d : destinations){
             if(destinationEstComplete(d)){
-                this.score+=nbPointsAttribuerItinneraire(d);
+                scoreFinal+=d.getValeurSimple();
             }
             else{
-                this.score-=d.getPenalite();
+                scoreFinal-=d.getPenalite();
             }
         }
 
         //enlève 4 points par ports non construits parmi les 3 ports possibles
-        this.score -= (3 - (this.ports.size())) * 4;
+        scoreFinal -= (3 - (this.ports.size())) * 4;
 
         //ajoute le score des ports construits
         //var pour le nombre de points ajouté par chaque port
@@ -1239,16 +1265,16 @@ public class Joueur {
                 }
             }
             if(scorePort==1){
-                this.score+=20;
+                scoreFinal+=20;
             }
             else if(scorePort==2){
-                this.score+=30;
+                scoreFinal+=30;
             }
             else if(scorePort>=3){
-                this.score+=40;
+                scoreFinal+=40;
             }
         }
-        return this.score;
+        return scoreFinal;
     }
 
     //renvoie le score du joueur

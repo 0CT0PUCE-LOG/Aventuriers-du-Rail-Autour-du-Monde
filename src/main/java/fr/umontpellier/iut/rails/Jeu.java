@@ -221,11 +221,14 @@ public class Jeu implements Runnable {
         int compteur = 2*getJoueurs().size();
 
         //ajoue des cartes de Transport Visible
-        for(int i=0; i<3; i++){
-            cartesTransportVisibles.add(piocherCarteBateau());
-            cartesTransportVisibles.add(piocherCarteWagon());
-        }
-
+        do{
+            clearCartesTransportVisibles();
+            for(int i=0; i<3; i++){
+                cartesTransportVisibles.add(piocherCarteBateau());
+                cartesTransportVisibles.add(piocherCarteWagon());
+            }
+        }while(!cartesTransportVisiblesSontValide());
+        
         for (Joueur j: joueurs) {
             j.setUp();
         }
