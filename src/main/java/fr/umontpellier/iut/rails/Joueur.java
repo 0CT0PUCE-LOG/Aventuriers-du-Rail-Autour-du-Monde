@@ -215,7 +215,7 @@ public class Joueur {
                     }
                     
                 }
-                if(portLibreNom.contains(choix)){//Condition d'entrée pas bonne il faut mettre un truc du genre portNom.contains(choix)
+                if(portLibreNom.contains(choix)){
                     if(peutConstruirePort(jeu.getPortFromNom(choix))){
                         construirePort(choix);
                         aJoue = true;
