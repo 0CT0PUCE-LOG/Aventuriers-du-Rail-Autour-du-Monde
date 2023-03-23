@@ -115,8 +115,14 @@ public class Joueur {
                 "Entrez le nombre de pion wagon à conserver parmis les " + nbPionsWagonEnReserve + " en réserve (la somme des wagon et des bateau devras être égale à 60)",
                 nombreWagonOption,
                 null,
-                false);
-        nbPionsWagonChoisi = Integer.valueOf(choix);
+                true);
+
+        if(!choix.equals("")){
+            nbPionsWagonChoisi = Integer.valueOf(choix);
+        }
+        else{
+            nbPionsWagonChoisi = 20;
+        }
 
         nbPionsBateauChoisi = 60 - nbPionsWagonChoisi;
 
@@ -150,9 +156,16 @@ public class Joueur {
 
 
 
-        List<Bouton> boutons = Arrays.asList(
-                new Bouton("Échanger wagon","PIONS WAGON"),
-                new Bouton("Échanger bateau","PIONS BATEAU"));
+        List<Bouton> boutons = new ArrayList<Bouton>();
+        if(nbPionsBateau!=0 && nbPionsWagonEnReserve!=0){
+            boutons.add(new Bouton("Échanger wagon","PIONS WAGON"));
+        }
+        if(nbPionsWagon!=0 && nbPionsBateauEnReserve!=0){
+            boutons.add(new Bouton("Échanger bateau","PIONS BATEAU"));
+        }
+            
+
+            
 
 
         List<String> options = new ArrayList<String>();
@@ -989,6 +1002,9 @@ public class Joueur {
                 couleursValides.add(coul);
             }
             else if(listeCombinaisonBateau.get(listeCouleur.indexOf(coul)) >=2 && listeCombinaisonWagon.get(listeCouleur.indexOf(coul)) +nbJoker >=2){
+                couleursValides.add(coul);
+            }
+            else if(nbJoker>1 && listeCombinaisonBateau.get(listeCouleur.indexOf(coul)) + listeCombinaisonWagon.get(listeCouleur.indexOf(coul)) >= 4-nbJoker ){
                 couleursValides.add(coul);
             }
         }
