@@ -1183,7 +1183,7 @@ public class Joueur {
      * @param d est un itinéraire (au moins 3 ville) et est Complet
      * @return le nombrer de points qu'il faudra attribuer au joueur
      */
-    private int nbPointsAttribuerItinneraire(Destination d){
+    private int nbPointsAttribuerItinneraire(Destination d){ // innutile dans la partie 1
         boolean estDansLeBonOrdre = itinéraireEstDansLeBonOrdre(d.getVilles(), new ArrayList<String>(), d.getVilles().get(0));
         if(estDansLeBonOrdre){
             return d.getValeurMax();
