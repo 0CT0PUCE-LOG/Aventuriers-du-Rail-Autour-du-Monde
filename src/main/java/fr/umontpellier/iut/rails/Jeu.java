@@ -230,10 +230,12 @@ public class Jeu implements Runnable {
         }while(!cartesTransportVisiblesSontValide());
         
         for (Joueur j: joueurs) {
+            joueurCourant = j;
             j.setUp();
         }
         while(compteur > 0) {
             for (Joueur j : joueurs) {
+                joueurCourant = j;
                 j.jouerTour();
                 if(j.getNbPions()<=6){
                     finDePartie= true;
