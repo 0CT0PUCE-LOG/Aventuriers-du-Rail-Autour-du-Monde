@@ -198,4 +198,53 @@ public class TestPerso {
 
         assertFalse(joueur1.destinationEstComplete(dest1));
     }
+
+    @Test
+    void testCapturerRouteMaritime1() {
+        cartesJoueur1.clear();
+        CarteTransport c1 = new CarteTransport(TypeCarteTransport.BATEAU, Couleur.VERT, false, true); // C141
+        CarteTransport c2 = new CarteTransport(TypeCarteTransport.BATEAU, Couleur.VERT, false, true); // C142
+        CarteTransport c3 = new CarteTransport(TypeCarteTransport.BATEAU, Couleur.VERT, true, false); // C143
+        CarteTransport c4 = new CarteTransport(TypeCarteTransport.BATEAU, Couleur.VERT, true, false); // C144
+        CarteTransport c5 = new CarteTransport(TypeCarteTransport.BATEAU, Couleur.BLANC, true, false); // C145
+        cartesJoueur1.addAll(List.of(c1, c2, c3, c4, c5));
+
+        jeu.setInput(
+                "R30", // route maritime Buenos Aires - Valparaiso (couleur VERT, longueur 3)
+                "C141", // (ok)
+                "C142", // pas possible car cela engendre une perte
+                "C143"  // double bateau, et aucune carte n'est inutile
+        );
+
+        joueur1.jouerTour();
+
+        assertEquals("R30", routesJoueur1.get(0).getNom());
+        assertTrue(cartesJoueur1.contains(c2));
+        assertEquals(4, TestUtils.getScore(joueur1));
+    }
+
+    @Test
+    void testCapturerRouteMaritime2() {
+        cartesJoueur1.clear();
+        CarteTransport c1 = new CarteTransport(TypeCarteTransport.BATEAU, Couleur.ROUGE, false, true); // C141
+        CarteTransport c2 = new CarteTransport(TypeCarteTransport.BATEAU, Couleur.ROUGE, false, true); // C142
+        CarteTransport c3 = new CarteTransport(TypeCarteTransport.BATEAU, Couleur.ROUGE, true, false); // C143
+        CarteTransport c4 = new CarteTransport(TypeCarteTransport.BATEAU, Couleur.ROUGE, true, false); // C144
+        CarteTransport c5 = new CarteTransport(TypeCarteTransport.BATEAU, Couleur.BLANC, true, false); // C145
+        cartesJoueur1.addAll(List.of(c1, c2, c3, c4, c5));
+
+        jeu.setInput(
+                "R36", // route maritime Buenos Aires - Valparaiso (couleur VERT, longueur 3)
+                "C141", // (ok)
+                "C142", // pas possible car cela engendre une perte
+                "C143", // double bateau (ok)
+                "C144"  // double bateau, et aucune carte n'est inutile (ok)
+        );
+
+        joueur1.jouerTour();
+
+        assertEquals("R36", routesJoueur1.get(0).getNom());
+        assertTrue(cartesJoueur1.contains(c2));
+        assertEquals(10, TestUtils.getScore(joueur1));
+    }
 }

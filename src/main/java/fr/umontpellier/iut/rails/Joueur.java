@@ -452,9 +452,14 @@ public class Joueur {
                         if(carteChoisie.getCouleur() != c.getCouleur() && c.getType()!=TypeCarteTransport.JOKER){
                             cartesTransport.add(c);
                         }
-                        else if(carteChoisie.getCouleur() == c.getCouleur()){
+                        else if(carteChoisie.getCouleur() == c.getCouleur() && routeChoisie instanceof RouteMaritime){
                             if(contientCarteNonDoubleDeCouleur(cartesTransportPosees, c.getCouleur()) && c.estDouble() && routeChoisie.getLongueur()-compteur==1 && BateauNonDoubleJoue){
                                 cartesTransport.add(c);
+                            }
+                            else if(nbMateriauNecessaire-compteur- nombreCarteTransportDeCouleurNonDouble(TypeCarteTransport.BATEAU, carteChoisie.getCouleur())>0){
+                                if((nbMateriauNecessaire-compteur)%2==0 && nombreCarteTransportPoseesDeCouleurDouble(TypeCarteTransport.BATEAU, carteChoisie.getCouleur()) >= (nbMateriauNecessaire-compteur) && !c.estDouble() ){
+                                    cartesTransport.add(c);
+                                }
                             }
 
                         }
@@ -705,7 +710,7 @@ public class Joueur {
     private void poserCarteTransportCompatible(Route route){ //TODO route paire à implémenter
         ArrayList<Couleur> couleurValide;
 
-        if(route.getClass().getName() == "fr.umontpellier.iut.rails.RouteTerrestre"){
+        if(route instanceof RouteTerrestre){
             if(route.getCouleur() == Couleur.GRIS){
                 couleurValide = combinaisonCouleurCarteTransport(TypeCarteTransport.WAGON, route.getLongueur());
                 for(CarteTransport c : cartesTransport){
@@ -732,7 +737,7 @@ public class Joueur {
             
         }
 
-        else if(route.getClass().getName() == "fr.umontpellier.iut.rails.RouteMaritime"){
+        else if(route instanceof RouteMaritime){
             if(route.getCouleur() == Couleur.GRIS){
                 couleurValide = combinaisonCouleurCarteTransport(TypeCarteTransport.BATEAU, route.getLongueur());
                 for(CarteTransport c : cartesTransport){
@@ -771,7 +776,7 @@ public class Joueur {
                 cartesTransport.removeAll(cartesTransportPosees);
             }
         }
-        else if(route.getClass().getName() == "fr.umontpellier.iut.rails.RoutePaire"){
+        else if(route instanceof RoutePaire){
             int nbJoker = nombreCarteTransport(TypeCarteTransport.JOKER);
             couleurValide = combinaisonCouleurCarteTransport(TypeCarteTransport.WAGON, 2-nbJoker);
             for(CarteTransport c : cartesTransport){
@@ -806,6 +811,30 @@ public class Joueur {
             if(((cartesTransport.get(i).getCouleur() == couleur && cartesTransport.get(i).getType() == type)) || cartesTransport.get(i).getType() == TypeCarteTransport.JOKER){
                 if(cartesTransport.get(i).estDouble()){
                     compteur+= 2;
+                }
+            }
+        }
+        return compteur;
+    }
+
+    private int nombreCarteTransportPoseesDeCouleurDouble(TypeCarteTransport type ,Couleur couleur){
+        int compteur = 0;
+        for(int i = 0; i<cartesTransportPosees.size();i++){
+            if(((cartesTransportPosees.get(i).getCouleur() == couleur && cartesTransportPosees.get(i).getType() == type)) || cartesTransportPosees.get(i).getType() == TypeCarteTransport.JOKER){
+                if(cartesTransportPosees.get(i).estDouble()){
+                    compteur+= 2;
+                }
+            }
+        }
+        return compteur;
+    }
+
+    private int nombreCarteTransportDeCouleurNonDouble(TypeCarteTransport type ,Couleur couleur){
+        int compteur = 0;
+        for(int i = 0; i<cartesTransport.size();i++){
+            if(((cartesTransport.get(i).getCouleur() == couleur && cartesTransport.get(i).getType() == type)) || cartesTransport.get(i).getType() == TypeCarteTransport.JOKER){
+                if(!cartesTransport.get(i).estDouble()){
+                    compteur++;
                 }
             }
         }
