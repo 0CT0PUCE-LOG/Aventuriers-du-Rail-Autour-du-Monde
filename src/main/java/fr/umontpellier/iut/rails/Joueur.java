@@ -153,8 +153,12 @@ public class Joueur {
         List<Ville> portLibre = jeu.getPortsLibres();
         ArrayList<String> portLibreNom = new ArrayList<String>();
 
-
-
+        //le joueur remplace les carte transport visible au début de son tour si c'est possible
+        if(jeu.getCartesTransportVisibles().size() < 6 && (!jeu.piocheBateauEstVide() || !jeu.piocheWagonEstVide())){
+            for(int i=0; i<6-jeu.getCartesTransportVisibles().size(); i++){
+                remplacerCarteTransportVisible();
+            }
+        }
 
         List<Bouton> boutons = new ArrayList<Bouton>();
         if(nbPionsBateau!=0 && nbPionsWagonEnReserve!=0){
@@ -271,7 +275,6 @@ public class Joueur {
      * @return la carte qui a été piochée (ou null si aucune carte disponible)
      */
     private boolean piocherCarteTransport(String mode){
-        //TODO cette métode ne prend pas en charge les jo
         int nbCartePioche = 0;
         String choix;
         do{
@@ -324,10 +327,7 @@ public class Joueur {
                     }
 
                     if(!jeu.cartesTransportVisiblesSontValide()){
-                        jeu.clearCartesTransportVisibles();
-                        for(int i=0; i<6;i++){
-                            remplacerCarteTransportVisible();
-                        }
+                        jeu.resetCartesTransportVisibles();
                     }
 
                 }
@@ -337,6 +337,9 @@ public class Joueur {
                 if(jeu.getCartesTransportVisibles().get(0).getType() == TypeCarteTransport.JOKER){
                     choix = "";
                 }
+            }
+            else if(nbCartePioche==1 && jeu.piocheBateauEstVide() && jeu.piocheWagonEstVide() && jeu.getCartesTransportVisibles().size()==0){
+                choix = "";
             }
 
         }while(!choix.equals("") && nbCartePioche!=2);

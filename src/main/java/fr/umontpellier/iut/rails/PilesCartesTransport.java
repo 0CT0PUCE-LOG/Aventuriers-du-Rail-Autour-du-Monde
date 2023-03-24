@@ -51,6 +51,10 @@ public class PilesCartesTransport {
         return this.pileDefausse.size()==0 && this.pilePioche.size()==0;
     }
 
+    public int size(){
+        return pileDefausse.size() + pilePioche.size();
+    }
+
     public List<CarteTransport> getCartes() {
         ArrayList<CarteTransport> cartes = new ArrayList<>();
         cartes.addAll(pilePioche);

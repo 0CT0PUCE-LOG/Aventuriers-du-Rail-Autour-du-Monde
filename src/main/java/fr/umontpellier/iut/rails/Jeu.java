@@ -189,16 +189,51 @@ public class Jeu implements Runnable {
         return nbJoker<3;
     }
 
-    public void clearCartesTransportVisibles(){
-        for(CarteTransport c : cartesTransportVisibles){
-            if(c.getType()==TypeCarteTransport.JOKER || c.getType()==TypeCarteTransport.WAGON){
-                pilesDeCartesWagon.defausser(c);
-                cartesTransportVisibles.remove(c);
-            }
-            else if(c.getType() == TypeCarteTransport.BATEAU){
-                pilesDeCartesBateau.defausser(c);
-                cartesTransportVisibles.remove(c);
-            }
+    public void resetCartesTransportVisibles(){
+
+        if(pilesDeCartesWagon.size()>=1 && pilesDeCartesBateau.size()>=3 ){
+            do{
+                for(CarteTransport c : cartesTransportVisibles){
+                    if(c.getType()==TypeCarteTransport.JOKER || c.getType()==TypeCarteTransport.WAGON){
+                        pilesDeCartesWagon.defausser(c);
+                    }
+                    else if(c.getType() == TypeCarteTransport.BATEAU){
+                        pilesDeCartesBateau.defausser(c);
+                    }
+                }
+                cartesTransportVisibles.clear();
+        
+                if(pilesDeCartesBateau.size()>=3 && pilesDeCartesWagon.size()>=3){
+                    for(int i =0; i<3; i++){
+                        piocherCarteBateau();
+                        piocherCarteWagon();
+                    }
+                }
+                else if(pilesDeCartesWagon.size()>=6-pilesDeCartesBateau.size()){
+                    for(int i =0; i<6-pilesDeCartesBateau.size(); i++){
+                        piocherCarteWagon();
+                    }
+                    for(int i =0; i<pilesDeCartesBateau.size(); i++){
+                        piocherCarteBateau();
+                    }
+                }
+                else if(pilesDeCartesBateau.size()>=6-pilesDeCartesWagon.size()){
+                    for(int i =0; i<6-pilesDeCartesWagon.size(); i++){
+                        piocherCarteBateau();
+                    }
+                    for(int i =0; i<pilesDeCartesWagon.size(); i++){
+                        piocherCarteWagon();
+                    }
+                }
+                else{
+                    for(int i=0; i<pilesDeCartesWagon.size(); i++){
+                        piocherCarteWagon();
+                    }
+                    for(int i=0; i<pilesDeCartesBateau.size(); i++){
+                        piocherCarteBateau();
+                    }
+                }
+            }while(!cartesTransportVisiblesSontValide());
         }
     }
 
@@ -221,13 +256,14 @@ public class Jeu implements Runnable {
         int compteur = 2*getJoueurs().size();
 
         //ajoue des cartes de Transport Visible
-        do{
-            clearCartesTransportVisibles();
-            for(int i=0; i<3; i++){
-                cartesTransportVisibles.add(piocherCarteBateau());
-                cartesTransportVisibles.add(piocherCarteWagon());
-            }
-        }while(!cartesTransportVisiblesSontValide());
+        for(int i=0; i<3; i++){
+            cartesTransportVisibles.add(piocherCarteBateau());
+            cartesTransportVisibles.add(piocherCarteWagon());
+        }
+
+        if(!cartesTransportVisiblesSontValide()){
+            resetCartesTransportVisibles();
+        }
         
         for (Joueur j: joueurs) {
             joueurCourant = j;

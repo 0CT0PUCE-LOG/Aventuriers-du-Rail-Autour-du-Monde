@@ -75,6 +75,14 @@ public class TestPerso {
         TestUtils.setAttribute(joueur1, "nbPionsWagonEnReserve", 5);
         TestUtils.setAttribute(joueur1, "nbPionsBateau", 40);
         TestUtils.setAttribute(joueur1, "nbPionsBateauEnReserve", 10);
+
+        // initialisation des cartes visibles
+        cartesTransportVisibles.add(jeu.piocherCarteWagon());
+        cartesTransportVisibles.add(jeu.piocherCarteWagon());
+        cartesTransportVisibles.add(jeu.piocherCarteWagon());
+        cartesTransportVisibles.add(jeu.piocherCarteBateau());
+        cartesTransportVisibles.add(jeu.piocherCarteBateau());
+        cartesTransportVisibles.add(jeu.piocherCarteBateau());
     }
 
     @Test
