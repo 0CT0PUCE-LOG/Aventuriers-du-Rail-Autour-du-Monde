@@ -253,7 +253,7 @@ public class Jeu implements Runnable {
         boolean finDePartie = false;
 
         //compteur de tour
-        int compteur = 2*getJoueurs().size();
+        int compteur = 2*getJoueurs().size()+1;
 
         //ajoue des cartes de Transport Visible
         for(int i=0; i<3; i++){
@@ -278,6 +278,9 @@ public class Jeu implements Runnable {
                 }
                 if(finDePartie){
                     compteur--;
+                }
+                if(compteur==0){
+                    break;
                 }
             }
 
