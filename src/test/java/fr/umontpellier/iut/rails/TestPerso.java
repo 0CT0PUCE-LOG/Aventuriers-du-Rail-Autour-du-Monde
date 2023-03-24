@@ -255,4 +255,122 @@ public class TestPerso {
         assertTrue(cartesJoueur1.contains(c2));
         assertEquals(10, TestUtils.getScore(joueur1));
     }
+
+    @Test
+    void testBoucleJokerInfini_1(){
+        CarteTransport c1 = new CarteTransport(TypeCarteTransport.WAGON, Couleur.ROUGE, false, false); // C141
+        CarteTransport c2 = new CarteTransport(TypeCarteTransport.WAGON, Couleur.VERT, false, true); // C142
+        CarteTransport c3 = new CarteTransport(TypeCarteTransport.WAGON, Couleur.JAUNE, false, true); // C143
+        CarteTransport c4 = new CarteTransport(TypeCarteTransport.JOKER, Couleur.GRIS, false, true); // C144
+        CarteTransport c5 = new CarteTransport(TypeCarteTransport.JOKER, Couleur.GRIS, false, true); // C145
+        CarteTransport c6 = new CarteTransport(TypeCarteTransport.BATEAU, Couleur.ROUGE, true, false); // C146
+        CarteTransport c7 = new CarteTransport(TypeCarteTransport.JOKER, Couleur.GRIS, false, true); //C147
+        cartesTransportVisibles.clear();
+        cartesTransportVisibles.addAll(List.of(c1, c2, c3, c4, c5, c6));
+
+        piocheWagon.clear();
+        piocheWagon.add(0,c7);
+
+        jeu.setInput(
+                "C146", // Carte non Joker
+                "WAGON", // la remplace par un joker (total 3 joker visible)
+                "BATEAU" // pioche une dernière carte pour finir le tour
+        );
+
+        joueur1.jouerTour();
+
+        assertTrue(cartesTransportVisibles.contains(c1));
+        assertTrue(cartesTransportVisibles.contains(c2));
+        assertTrue(cartesTransportVisibles.contains(c3));
+        assertTrue(cartesTransportVisibles.contains(c4));
+        assertTrue(cartesTransportVisibles.contains(c5));
+        assertTrue(cartesTransportVisibles.contains(c7));
+        assertTrue(piocheWagon.size()==0);
+        assertTrue(cartesJoueur1.contains(c6));
+    }
+
+    @Test
+    void testBoucleJokerInfini_2(){
+        CarteTransport c1 = new CarteTransport(TypeCarteTransport.WAGON, Couleur.ROUGE, false, false); // C141
+        CarteTransport c2 = new CarteTransport(TypeCarteTransport.WAGON, Couleur.VERT, false, true); // C142
+        CarteTransport c3 = new CarteTransport(TypeCarteTransport.WAGON, Couleur.JAUNE, false, true); // C143
+        CarteTransport c4 = new CarteTransport(TypeCarteTransport.JOKER, Couleur.GRIS, false, true); // C144
+        CarteTransport c5 = new CarteTransport(TypeCarteTransport.JOKER, Couleur.GRIS, false, true); // C145
+        CarteTransport c6 = new CarteTransport(TypeCarteTransport.BATEAU, Couleur.ROUGE, true, false); // C146
+        cartesTransportVisibles.clear();
+        cartesTransportVisibles.addAll(List.of(c1, c2, c3, c4, c5, c6));
+
+        CarteTransport c7 = new CarteTransport(TypeCarteTransport.JOKER, Couleur.GRIS, false, true); //C147
+        CarteTransport c8 = new CarteTransport(TypeCarteTransport.WAGON, Couleur.ROUGE, false, false); // C148
+        piocheWagon.clear();
+        piocheWagon.add(c7);
+        piocheWagon.add(c8);
+
+        CarteTransport c9 = new CarteTransport(TypeCarteTransport.BATEAU, Couleur.ROUGE, false, false); // C149
+        CarteTransport c10 = new CarteTransport(TypeCarteTransport.BATEAU, Couleur.ROUGE, true, false); // C150
+        piocheBateau.clear();
+        piocheBateau.addAll(List.of(c9, c10));
+
+        jeu.setInput(
+                "C146", // Carte non Joker
+                "WAGON", // la remplace par un joker (total 3 joker visible)
+                "BATEAU" // pioche une dernière carte pour finir le tour
+        );
+
+        joueur1.jouerTour();
+
+        assertTrue(cartesTransportVisibles.contains(c1));
+        assertTrue(cartesTransportVisibles.contains(c2));
+        assertTrue(cartesTransportVisibles.contains(c3));
+        assertTrue(cartesTransportVisibles.contains(c4));
+        assertTrue(cartesTransportVisibles.contains(c5));
+        assertTrue(cartesTransportVisibles.contains(c7));
+        assertTrue(piocheWagon.size()==1);
+        assertTrue(piocheBateau.size()==1);
+        assertTrue(cartesJoueur1.contains(c6));
+    }
+
+    @Test
+    void testCartesVisiblesNonValides(){
+        CarteTransport c1 = new CarteTransport(TypeCarteTransport.WAGON, Couleur.ROUGE, false, false); // C141
+        CarteTransport c2 = new CarteTransport(TypeCarteTransport.WAGON, Couleur.VERT, false, true); // C142
+        CarteTransport c3 = new CarteTransport(TypeCarteTransport.WAGON, Couleur.JAUNE, false, true); // C143
+        CarteTransport c4 = new CarteTransport(TypeCarteTransport.JOKER, Couleur.GRIS, false, true); // C144
+        CarteTransport c5 = new CarteTransport(TypeCarteTransport.JOKER, Couleur.GRIS, false, true); // C145
+        CarteTransport c6 = new CarteTransport(TypeCarteTransport.BATEAU, Couleur.ROUGE, true, false); // C146
+        cartesTransportVisibles.clear();
+        cartesTransportVisibles.addAll(List.of(c1, c2, c3, c4, c5, c6));
+
+        CarteTransport c7 = new CarteTransport(TypeCarteTransport.JOKER, Couleur.GRIS, false, true); //C147
+        piocheWagon.add(0,c7);
+
+        CarteTransport cr1 = piocheWagon.get(1);
+        CarteTransport cr2 = piocheWagon.get(2);
+        CarteTransport cr3 = piocheWagon.get(3);
+        CarteTransport cr4 = piocheBateau.get(0);
+        CarteTransport cr5 = piocheBateau.get(1);
+        CarteTransport cr6 = piocheBateau.get(2);
+
+        jeu.setInput(
+                "C146", // Carte non Joker
+                "WAGON", // la remplace par un joker (total 3 joker visible)
+                "BATEAU" // pioche une dernière carte pour finir le tour
+        );
+
+        joueur1.jouerTour();
+        
+        assertTrue(cartesTransportVisibles.contains(cr1));
+        assertTrue(cartesTransportVisibles.contains(cr2));
+        assertTrue(cartesTransportVisibles.contains(cr3));
+        assertTrue(cartesTransportVisibles.contains(cr4));
+        assertTrue(cartesTransportVisibles.contains(cr5));
+        assertTrue(cartesTransportVisibles.contains(cr6));
+        assertTrue(cartesJoueur1.contains(c6));
+        assertFalse(cartesTransportVisibles.contains(c1));
+        assertFalse(cartesTransportVisibles.contains(c2));
+        assertFalse(cartesTransportVisibles.contains(c3));
+        assertFalse(cartesTransportVisibles.contains(c4));
+        assertFalse(cartesTransportVisibles.contains(c5));
+        assertFalse(cartesTransportVisibles.contains(c7));
+    }
 }

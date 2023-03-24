@@ -205,32 +205,32 @@ public class Jeu implements Runnable {
         
                 if(pilesDeCartesBateau.size()>=3 && pilesDeCartesWagon.size()>=3){
                     for(int i =0; i<3; i++){
-                        piocherCarteBateau();
-                        piocherCarteWagon();
+                        cartesTransportVisibles.add(piocherCarteBateau());
+                        cartesTransportVisibles.add(piocherCarteWagon());
                     }
                 }
                 else if(pilesDeCartesWagon.size()>=6-pilesDeCartesBateau.size()){
                     for(int i =0; i<6-pilesDeCartesBateau.size(); i++){
-                        piocherCarteWagon();
+                        cartesTransportVisibles.add(piocherCarteWagon());
                     }
                     for(int i =0; i<pilesDeCartesBateau.size(); i++){
-                        piocherCarteBateau();
+                        cartesTransportVisibles.add(piocherCarteBateau());
                     }
                 }
                 else if(pilesDeCartesBateau.size()>=6-pilesDeCartesWagon.size()){
                     for(int i =0; i<6-pilesDeCartesWagon.size(); i++){
-                        piocherCarteBateau();
+                        cartesTransportVisibles.add(piocherCarteBateau());
                     }
                     for(int i =0; i<pilesDeCartesWagon.size(); i++){
-                        piocherCarteWagon();
+                        cartesTransportVisibles.add(piocherCarteWagon());
                     }
                 }
                 else{
                     for(int i=0; i<pilesDeCartesWagon.size(); i++){
-                        piocherCarteWagon();
+                        cartesTransportVisibles.add(piocherCarteWagon());
                     }
                     for(int i=0; i<pilesDeCartesBateau.size(); i++){
-                        piocherCarteBateau();
+                        cartesTransportVisibles.add(piocherCarteBateau());
                     }
                 }
             }while(!cartesTransportVisiblesSontValide());
