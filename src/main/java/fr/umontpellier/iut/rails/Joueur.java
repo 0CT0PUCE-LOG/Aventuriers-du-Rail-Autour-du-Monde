@@ -877,6 +877,7 @@ public class Joueur {
 
     private void echangerPion(String mode){
         String choix;
+        boolean fini = false;
         if(mode.equals("PIONS WAGON")){
             int nbWagon = 0;
             log(String.format("ECHANGE PIONS WAGON",toLog()));
@@ -887,9 +888,7 @@ public class Joueur {
                         nombreWagonOption,
                         null,
                         false);
-                while(nbWagon<1 || nbWagon>25){
-                    nbWagon = Integer.valueOf(choix);
-                }
+                nbWagon = Integer.valueOf(choix);
                 if(nbWagon <= this.nbPionsBateau){
                     if(nbWagon <= this.nbPionsWagonEnReserve){
                         this.nbPionsWagon+=nbWagon;
@@ -898,6 +897,7 @@ public class Joueur {
                         this.nbPionsBateauEnReserve+=nbWagon;
                         this.score-=nbWagon;
                         log(String.format("Vous venez d'échanger "+nbWagon+" pions Bateau\n contre "+nbWagon+" pions Wagon.",toLog()));
+                        fini =true;
                     }
                     else{
                         log(String.format("L'échange est impossible, pas assez de Pions Wagon\n en réserve.",toLog()));
@@ -906,7 +906,7 @@ public class Joueur {
                 else{
                     log(String.format("L'échange est impossible, pas assez de Pions Bateau\n à échanger.",toLog()));
                 }
-            }while(nbWagon<1 || nbWagon>25);
+            }while(!fini);
         }
         if(mode.equals("PIONS BATEAU")){
             int nbBateau = 0;
@@ -926,6 +926,7 @@ public class Joueur {
                         this.nbPionsBateauEnReserve-=nbBateau;
                         this.score-=nbBateau;
                         log(String.format("Vous venez d'échanger "+nbBateau+" pions Bateau\n contre "+nbBateau+" pions Wagon.",toLog()));
+                        fini=true;
                     }
                     else{
                         log(String.format("L'échange est impossible, pas assez de Pions Bateau\n en réserve.",toLog()));
@@ -934,7 +935,7 @@ public class Joueur {
                 else{
                     log(String.format("L'échange est impossible, pas assez de Pions Bateau\n à échanger.",toLog()));
                 }
-            }while (nbBateau<1 || nbBateau>25);
+            }while (!fini);
         }
     }
 
