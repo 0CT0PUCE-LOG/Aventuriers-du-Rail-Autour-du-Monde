@@ -153,7 +153,7 @@ public class Joueur {
         List<Ville> portLibre = jeu.getPortsLibres();
         ArrayList<String> portLibreNom = new ArrayList<String>();
 
-        //le joueur remplace les carte transport visible au début de son tour si c'est possible
+        //le joueur remplace les cartes transport visible au début de son tour si c'est possible
         if(jeu.getCartesTransportVisibles().size() < 6 && (!jeu.piocheBateauEstVide() || !jeu.piocheWagonEstVide())){
             for(int i=0; i<6-jeu.getCartesTransportVisibles().size(); i++){
                 remplacerCarteTransportVisible();
@@ -241,7 +241,7 @@ public class Joueur {
             }
         }while(!aJoue);
 
-        //NE PAS SUPPRIMER
+        //NE PAS SUPPRIMER MODELE
         // IMPORTANT : Le corps de cette fonction est à réécrire entièrement
         // Un exemple très simple est donné pour illustrer l'utilisation de certaines méthodes
         /*
@@ -336,8 +336,7 @@ public class Joueur {
 
         }while(!choix.equals("") && nbCartePioche!=2);
 
-        boolean aPioche = !(nbCartePioche==0);
-        return aPioche;
+        return !(nbCartePioche==0);
     }
 
     private void remplacerCarteTransportVisible(){
@@ -354,7 +353,7 @@ public class Joueur {
     }
 
     /**
-     * Gère la pioche de destination par le joueurs
+     * Gère la pioche de destination par le joueur
      */
     private void piocherCarteDestination(int nbCartePioche, int nbCarteMin){
         String choix;
@@ -402,8 +401,8 @@ public class Joueur {
 
         }while(!choix.equals("") && nbCarteGarde!=nbCarteMin);
 
-        for(int i=0; i<pioche.size(); i++){
-            this.destinations.add(pioche.get(i));
+        for (Destination destination : pioche) {
+            this.destinations.add(destination);
         }
 
     }
@@ -424,7 +423,7 @@ public class Joueur {
 
         //double le nombre de matériaux nécessaire si la route est double
         int nbMateriauNecessaire = routeChoisie.getLongueur();
-        if(routeChoisie.getClass().getName() == "fr.umontpellier.iut.rails.RoutePaire"){
+        if(routeChoisie.getClass().getName().equals("fr.umontpellier.iut.rails.RoutePaire")){
             nbMateriauNecessaire = nbMateriauNecessaire*2;
         }
 
@@ -517,14 +516,14 @@ public class Joueur {
         }while(nbMateriauNecessaire>compteur);
 
         //retrait des pions
-        if(routeChoisie.getClass().getName() == "fr.umontpellier.iut.rails.RouteTerrestre" || routeChoisie.getClass().getName() == "fr.umontpellier.iut.rails.RoutePaire"){
+        if(routeChoisie.getClass().getName().equals("fr.umontpellier.iut.rails.RouteTerrestre") || routeChoisie.getClass().getName().equals("fr.umontpellier.iut.rails.RoutePaire")){
             nbPionsBateau = nbPionsBateau - nbMateriauNecessaire;
         }
-        else if(routeChoisie.getClass().getName() == "fr.umontpellier.iut.rails.RouteMaritime"){
+        else if(routeChoisie.getClass().getName().equals("fr.umontpellier.iut.rails.RouteMaritime")){
             nbPionsWagon = nbPionsWagon - nbMateriauNecessaire;
         }
 
-        //remise des carte restantes dans Cartes Transport
+        //remise de la carte restante dans Cartes Transport
         cartesTransport.addAll(cartesTransportPosees);
         cartesTransportPosees.removeAll(cartesTransport);
 
@@ -532,7 +531,7 @@ public class Joueur {
         routes.add(routeChoisie);
         jeu.removeRoutesLibre(routeChoisie);
 
-        //elimination de la route parallèle si il y en a si il y a moins de 4 joueur
+        //elimination de la route parallèle s'il y en a s'il y a moins de 4 joueurs
         if(jeu.getJoueurs().size()<4){
             if(routeChoisie.getRouteParallele()!=null){
                 jeu.removeRoutesLibre(routeChoisie.getRouteParallele());
@@ -1217,10 +1216,10 @@ public class Joueur {
         ArrayList<String> predecesseurs = new ArrayList<>();
         if(ville != null){
             for(Route r : routes){
-                if(!predecesseurs.contains(r.getVille1().getNom()) && r.getVille1().getNom()!= ville && r.getVille2().getNom()== ville && !dejaVu.contains(r.getVille1().getNom())){
+                if(!predecesseurs.contains(r.getVille1().getNom()) && !Objects.equals(r.getVille1().getNom(), ville) && Objects.equals(r.getVille2().getNom(), ville) && !dejaVu.contains(r.getVille1().getNom())){
                     predecesseurs.add(r.getVille1().getNom());
                 }
-                else if(!predecesseurs.contains(r.getVille2().getNom()) && r.getVille2().getNom()!= ville && r.getVille1().getNom()== ville && !dejaVu.contains(r.getVille2().getNom())){
+                else if(!predecesseurs.contains(r.getVille2().getNom()) && !Objects.equals(r.getVille2().getNom(), ville) && Objects.equals(r.getVille1().getNom(), ville) && !dejaVu.contains(r.getVille2().getNom())){
                     predecesseurs.add(r.getVille2().getNom());
                 }
             }
@@ -1274,7 +1273,7 @@ public class Joueur {
             for(String v : listeReference){
                 i=0;
                 while(i<listeEssaie.size()){
-                    if(listeEssaie.get(i)==v){
+                    if(Objects.equals(listeEssaie.get(i), v)){
                         if(dernierIndice<i){
                             dernierIndice = i;
                         }
