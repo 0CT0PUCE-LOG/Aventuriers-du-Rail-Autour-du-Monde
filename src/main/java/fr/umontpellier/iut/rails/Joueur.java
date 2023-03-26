@@ -333,14 +333,6 @@ public class Joueur {
                 }
                 
             }
-            if(nbCartePioche==1 && jeu.getCartesTransportVisibles().size()==1){
-                if(jeu.getCartesTransportVisibles().get(0).getType() == TypeCarteTransport.JOKER){
-                    choix = "";
-                }
-            }
-            else if(nbCartePioche==1 && jeu.piocheBateauEstVide() && jeu.piocheWagonEstVide() && jeu.getCartesTransportVisibles().size()==0){
-                choix = "";
-            }
 
         }while(!choix.equals("") && nbCartePioche!=2);
 
